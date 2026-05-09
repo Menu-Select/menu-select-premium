@@ -1,0 +1,3012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0f" />
+<title>Menu Select Premium — This Week's Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800;900&family=Fraunces:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-2: #11111a;
+    --bg-3: #181824;
+    --line: rgba(255, 255, 255, 0.06);
+    --line-2: rgba(255, 255, 255, 0.12);
+    --text: #f4f4f6;
+    --text-dim: #a8a8b3;
+    --text-faint: #6b6b78;
+    --blue: #3B8BEB;
+    --fuchsia: #E040FB;
+    --grad: linear-gradient(135deg, #3B8BEB 0%, #E040FB 100%);
+    --grad-soft: linear-gradient(135deg, rgba(59,139,235,0.18) 0%, rgba(224,64,251,0.18) 100%);
+    --success: #34d399;
+    --warn: #fbbf24;
+    --shadow-glow: 0 0 40px rgba(224, 64, 251, 0.25), 0 0 80px rgba(59, 139, 235, 0.15);
+    --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 20px 40px -20px rgba(0,0,0,0.5);
+    --r-sm: 10px;
+    --r-md: 14px;
+    --r-lg: 20px;
+    --r-xl: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Raleway', system-ui, sans-serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+  }
+  button, input, select { font-family: inherit; color: inherit; }
+  button { border: none; background: none; cursor: pointer; }
+
+  /* ------ Ambient background ------ */
+  .bg-stage {
+    position: fixed; inset: 0; z-index: -1; overflow: hidden;
+    background: radial-gradient(ellipse at top, #11111c 0%, #0a0a0f 55%, #050508 100%);
+  }
+  .bg-stage::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .orb.a { width: 380px; height: 380px; background: #3B8BEB; top: -120px; left: -100px; }
+  .orb.b { width: 320px; height: 320px; background: #E040FB; bottom: -120px; right: -80px; animation-delay: -6s; }
+  .orb.c { width: 220px; height: 220px; background: #6B5BFF; top: 40%; right: -50px; animation-delay: -12s; opacity: 0.35; }
+  @keyframes drift {
+    0%   { transform: translate(0,0) scale(1); }
+    50%  { transform: translate(30px, -20px) scale(1.08); }
+    100% { transform: translate(-20px, 30px) scale(0.96); }
+  }
+
+  /* ------ App frame ------ */
+  .app {
+    max-width: 460px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+    padding-bottom: 100px;
+  }
+
+  /* ------ Top bar ------ */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    background: rgba(10, 10, 15, 0.65);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .topbar .back {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .topbar .back:hover { background: rgba(255,255,255,0.12); }
+  .topbar .title {
+    font-weight: 700; font-size: 16px; letter-spacing: 0.02em;
+  }
+  .topbar .spacer { flex: 1; }
+  .topbar .pill-action {
+    font-size: 12px; font-weight: 600;
+    padding: 7px 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line-2);
+  }
+
+  /* ------ Screens ------ */
+  .screen { display: none; animation: fadeIn 0.35s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ------ Brand chip / logo ------ */
+  .brand {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--text-dim); font-weight: 600;
+  }
+  .brand .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--grad);
+    box-shadow: 0 0 14px rgba(224,64,251,0.7);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  .ai-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px;
+    background: rgba(224, 64, 251, 0.08);
+    border: 1px solid rgba(224, 64, 251, 0.25);
+    border-radius: 999px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #f0aaff;
+  }
+  .ai-chip::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #E040FB;
+    box-shadow: 0 0 8px #E040FB;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  /* =================================================================
+     LOGIN / WELCOME
+  ================================================================== */
+  #screen-welcome { padding: 48px 24px 40px; min-height: 100vh; min-height: 100dvh; display: none; flex-direction: column; }
+  #screen-welcome.active { display: flex; }
+  .welcome-top { flex: 1; }
+  .welcome-eyebrow {
+    margin-top: 24px;
+  }
+  .welcome-h1 {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 900; font-size: 44px; line-height: 1; letter-spacing: -0.02em;
+    margin-top: 28px;
+  }
+  .welcome-h1 em {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    background: var(--grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .welcome-sub {
+    margin-top: 18px; font-size: 17px; line-height: 1.5; color: var(--text-dim);
+    max-width: 30ch;
+  }
+
+  .price-line {
+    margin-top: 32px;
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+  }
+  .price-line .price {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800; font-size: 28px;
+    background: var(--grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .price-line .per { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+  .price-line .trial { margin-left: auto; font-size: 11px; color: var(--success); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .welcome-bullets { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+  .welcome-bullet {
+    display: flex; gap: 14px; align-items: flex-start;
+    font-size: 14px; color: var(--text-dim);
+  }
+  .welcome-bullet .check {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--grad-soft);
+    border: 1px solid rgba(224,64,251,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: #f0aaff;
+  }
+  .welcome-bullet b { color: var(--text); font-weight: 600; }
+
+  .auth-stack { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .btn-auth {
+    height: 54px;
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    font-size: 15px; font-weight: 600;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-auth:active { transform: scale(0.98); }
+  .btn-apple {
+    background: white; color: #0a0a0f;
+  }
+  .btn-google {
+    background: rgba(255,255,255,0.06); color: white;
+    border: 1px solid var(--line-2);
+  }
+  .btn-email {
+    background: transparent; color: var(--text-dim);
+    font-weight: 500; height: 44px; font-size: 13px;
+  }
+  .auth-fine {
+    margin-top: 18px; text-align: center;
+    font-size: 11px; color: var(--text-faint); line-height: 1.6;
+  }
+  .auth-fine a { color: var(--text-dim); text-decoration: underline; }
+
+  /* =================================================================
+     ONBOARDING
+  ================================================================== */
+  .onb-wrap { padding: 32px 24px 32px; }
+  .onb-progress {
+    display: flex; gap: 6px; margin-bottom: 32px;
+  }
+  .onb-progress .step {
+    flex: 1; height: 3px; border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .onb-progress .step.done { background: var(--grad); }
+  .onb-progress .step.current::after {
+    content: ''; display: block; height: 100%;
+    width: 60%; background: var(--grad);
+  }
+  .onb-eyebrow { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+  .onb-h2 {
+    font-weight: 800; font-size: 30px; line-height: 1.1; letter-spacing: -0.01em;
+    margin-top: 10px;
+  }
+  .onb-h2 em { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .onb-sub { margin-top: 12px; color: var(--text-dim); font-size: 15px; line-height: 1.5; }
+
+  .chip-cloud {
+    margin-top: 28px;
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .chip {
+    padding: 11px 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-2);
+    font-size: 14px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: rgba(255,255,255,0.25); }
+  .chip.selected {
+    background: var(--grad-soft);
+    border-color: rgba(224,64,251,0.45);
+    color: white;
+    box-shadow: 0 0 0 1px rgba(224,64,251,0.2);
+  }
+  .chip .x { display: none; margin-left: 6px; opacity: 0.6; }
+  .chip.selected .x { display: inline; }
+
+  .onb-footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 16px 24px 28px;
+    background: linear-gradient(to top, rgba(10,10,15,0.98) 60%, transparent);
+    max-width: 460px; margin: 0 auto;
+  }
+  .btn-primary {
+    width: 100%; height: 54px;
+    border-radius: var(--r-md);
+    background: var(--grad);
+    color: white; font-weight: 700; font-size: 15px;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-glow);
+    transition: transform 0.15s, opacity 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.4; box-shadow: none; }
+  .btn-secondary {
+    width: 100%; height: 50px;
+    border-radius: var(--r-md);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line-2);
+    color: var(--text); font-weight: 600; font-size: 14px;
+  }
+  .btn-ghost {
+    background: transparent; color: var(--text-dim);
+    font-size: 13px; font-weight: 500;
+    padding: 8px 12px;
+  }
+
+  /* =================================================================
+     HOME — WEEKLY MENU
+  ================================================================== */
+  .home-hero {
+    padding: 22px 22px 12px;
+  }
+  .home-greeting {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .home-greeting .hi { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+  .home-greeting .hi b { color: var(--text); font-weight: 700; }
+  .home-greeting .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--grad);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .home-h1 {
+    font-weight: 900; font-size: 32px; line-height: 1.05; letter-spacing: -0.015em;
+    margin-top: 4px;
+  }
+  .home-h1 em {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .home-meta {
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .home-meta .dot-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--text-faint); }
+
+  /* week summary card */
+  .week-card {
+    margin: 18px 22px 8px;
+    padding: 18px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(165deg, rgba(59,139,235,0.10) 0%, rgba(224,64,251,0.06) 100%);
+    border: 1px solid rgba(224,64,251,0.18);
+    position: relative; overflow: hidden;
+  }
+  .week-card::after {
+    content: ''; position: absolute; right: -40px; top: -40px;
+    width: 140px; height: 140px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(224,64,251,0.25) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .week-card .row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    position: relative; z-index: 1;
+  }
+  .week-card .label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+  .week-card .count { font-size: 32px; font-weight: 800; line-height: 1; }
+  .week-card .save { font-size: 12px; color: var(--success); font-weight: 600; margin-top: 8px; }
+  .week-card .save b { font-weight: 800; }
+
+  .home-actions {
+    margin: 20px 22px 6px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .action-tile {
+    padding: 16px 14px;
+    border-radius: var(--r-md);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line-2);
+    text-align: left;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .action-tile:hover { border-color: rgba(255,255,255,0.2); }
+  .action-tile:active { transform: scale(0.98); }
+  .action-tile .icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--grad-soft);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    color: #f0aaff;
+  }
+  .action-tile .name { font-size: 13px; font-weight: 700; }
+  .action-tile .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* selected-dinner list */
+  .section-h {
+    margin: 28px 22px 12px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .section-h h3 {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .section-h .link {
+    font-size: 12px; color: var(--text);
+    background: var(--grad); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+  }
+
+  .dinner-list { padding: 0 22px; display: flex; flex-direction: column; gap: 10px; }
+  .dinner-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    transition: border-color 0.2s;
+  }
+  .dinner-row .thumb {
+    width: 56px; height: 56px; flex-shrink: 0;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    background: linear-gradient(135deg, rgba(59,139,235,0.18), rgba(224,64,251,0.18));
+    border: 1px solid var(--line-2);
+  }
+  .dinner-row .body { flex: 1; min-width: 0; }
+  .dinner-row .name {
+    font-size: 14px; font-weight: 700; line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .dinner-row .meta {
+    font-size: 11px; color: var(--text-dim); margin-top: 4px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .dinner-row .day {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    color: #f0aaff;
+    background: rgba(224,64,251,0.1);
+    padding: 4px 8px; border-radius: 6px;
+    border: 1px solid rgba(224,64,251,0.2);
+  }
+  .dinner-row .remove {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line-2);
+    color: var(--text-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .empty-week {
+    margin: 0 22px; padding: 36px 24px; text-align: center;
+    border: 1px dashed var(--line-2); border-radius: var(--r-lg);
+  }
+  .empty-week .ico {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 14px;
+    background: var(--grad-soft);
+    display: flex; align-items: center; justify-content: center;
+    color: #f0aaff; font-size: 26px;
+  }
+  .empty-week h4 { font-weight: 800; font-size: 17px; }
+  .empty-week p { font-size: 13px; color: var(--text-dim); margin-top: 6px; max-width: 28ch; margin-left: auto; margin-right: auto; }
+  .empty-week .btn-primary { margin-top: 20px; max-width: 220px; margin-left: auto; margin-right: auto; }
+
+  /* =================================================================
+     RECIPE BROWSE
+  ================================================================== */
+  .browse-head { padding: 18px 22px 8px; }
+  .browse-head h2 {
+    font-weight: 900; font-size: 28px; line-height: 1.1; letter-spacing: -0.01em;
+  }
+  .browse-head h2 em { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .browse-head p { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+
+  .filters-row {
+    padding: 14px 22px 6px;
+    display: flex; gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-2);
+    font-size: 12px; font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .filter-chip.active {
+    background: var(--grad);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 14px rgba(224,64,251,0.3);
+  }
+
+  .recipe-grid { padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .recipe-card {
+    border-radius: var(--r-lg);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line-2);
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.2s;
+    box-shadow: var(--shadow-card);
+  }
+  .recipe-card:hover { border-color: rgba(255,255,255,0.18); }
+  .recipe-card.in-week {
+    border-color: rgba(224,64,251,0.4);
+    box-shadow: 0 0 0 1px rgba(224,64,251,0.2);
+  }
+  .recipe-card .visual {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, rgba(59,139,235,0.15) 0%, rgba(224,64,251,0.15) 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+  .recipe-card .visual .emoji { font-size: 64px; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4)); }
+  .recipe-card .badge {
+    position: absolute; top: 12px; left: 12px;
+    padding: 5px 10px; border-radius: 999px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    background: rgba(10,10,15,0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line-2);
+    color: white;
+  }
+  .recipe-card .heart {
+    position: absolute; top: 12px; right: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(10,10,15,0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px;
+    transition: all 0.2s;
+  }
+  .recipe-card .heart.liked {
+    background: rgba(224,64,251,0.2);
+    border-color: rgba(224,64,251,0.5);
+    color: #f0aaff;
+  }
+  .recipe-card .body { padding: 14px 16px 16px; }
+  .recipe-card .name { font-weight: 800; font-size: 16px; letter-spacing: -0.01em; line-height: 1.2; }
+  .recipe-card .desc { font-size: 12.5px; color: var(--text-dim); margin-top: 6px; line-height: 1.45; }
+  .recipe-card .specs {
+    margin-top: 12px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+    font-size: 11px; color: var(--text-faint);
+  }
+  .recipe-card .specs span { display: inline-flex; align-items: center; gap: 4px; }
+  .recipe-card .actions { padding: 0 16px 16px; }
+  .recipe-card .add-btn {
+    width: 100%; height: 40px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    font-size: 13px; font-weight: 600;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .recipe-card .add-btn:hover { background: rgba(255,255,255,0.1); }
+  .recipe-card.in-week .add-btn {
+    background: var(--grad);
+    border-color: transparent;
+    color: white;
+  }
+
+  /* =================================================================
+     SHOPPING LIST
+  ================================================================== */
+  .list-head { padding: 22px 22px 6px; }
+  .list-head h2 {
+    font-weight: 900; font-size: 30px; letter-spacing: -0.015em; line-height: 1.05;
+  }
+  .list-head h2 em { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .list-summary {
+    margin: 14px 22px 8px;
+    padding: 16px;
+    border-radius: var(--r-md);
+    background: rgba(52,211,153,0.06);
+    border: 1px solid rgba(52,211,153,0.2);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .list-summary .icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--success); font-size: 20px;
+  }
+  .list-summary .copy { flex: 1; }
+  .list-summary .head { font-size: 13px; font-weight: 700; }
+  .list-summary .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .list-summary .num { font-size: 22px; font-weight: 800; color: var(--success); }
+
+  .list-toggle {
+    margin: 14px 22px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+  }
+  .list-toggle .switch {
+    width: 38px; height: 22px; border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--line-2);
+    position: relative; transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .list-toggle .switch::after {
+    content: ''; position: absolute; left: 2px; top: 1px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: white; transition: transform 0.2s;
+  }
+  .list-toggle.on .switch { background: var(--grad); border-color: transparent; }
+  .list-toggle.on .switch::after { transform: translateX(16px); }
+  .list-toggle .copy { flex: 1; }
+  .list-toggle .head { font-size: 13px; font-weight: 700; }
+  .list-toggle .sub { font-size: 11px; color: var(--text-dim); }
+
+  .list-categories { padding: 8px 22px 24px; }
+  .list-cat {
+    margin-top: 22px;
+  }
+  .list-cat h4 {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px;
+  }
+  .list-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .check {
+    width: 24px; height: 24px; border-radius: 6px;
+    border: 1.5px solid var(--line-2);
+    background: rgba(255,255,255,0.03);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .list-item.checked .check {
+    background: var(--grad);
+    border-color: transparent;
+  }
+  .list-item.checked .check::after {
+    content: '✓'; color: white; font-size: 12px; font-weight: 800;
+  }
+  .list-item .info { flex: 1; min-width: 0; }
+  .list-item .name { font-size: 14px; font-weight: 600; }
+  .list-item.checked .name { text-decoration: line-through; opacity: 0.5; }
+  .list-item .qty { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .list-item .shared {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #f0aaff;
+    background: rgba(224,64,251,0.08);
+    padding: 4px 7px; border-radius: 5px;
+    border: 1px solid rgba(224,64,251,0.18);
+    flex-shrink: 0;
+  }
+
+  /* output buttons */
+  .output-stack {
+    padding: 16px 22px 22px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .btn-instacart {
+    width: 100%; height: 56px;
+    border-radius: var(--r-md);
+    background: #43B02A;
+    color: white; font-weight: 700; font-size: 15px;
+    box-shadow: 0 6px 20px rgba(67, 176, 42, 0.35);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform 0.15s;
+  }
+  .btn-instacart:active { transform: scale(0.98); }
+  .btn-email {
+    width: 100%; height: 50px;
+    border-radius: var(--r-md);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line-2);
+    color: var(--text); font-weight: 600; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  /* =================================================================
+     PANTRY
+  ================================================================== */
+  .pantry-head { padding: 22px 22px 8px; }
+  .pantry-head h2 {
+    font-weight: 900; font-size: 28px; letter-spacing: -0.01em;
+  }
+  .pantry-head h2 em { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pantry-head p { color: var(--text-dim); font-size: 13px; margin-top: 6px; }
+
+  .pantry-banner {
+    margin: 16px 22px;
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, rgba(59,139,235,0.1) 0%, rgba(224,64,251,0.08) 100%);
+    border: 1px solid rgba(224,64,251,0.2);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .pantry-banner .ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--grad-soft); border: 1px solid rgba(224,64,251,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: #f0aaff;
+  }
+  .pantry-banner .copy { flex: 1; }
+  .pantry-banner .head { font-size: 13px; font-weight: 700; }
+  .pantry-banner .sub { font-size: 11px; color: var(--text-dim); margin-top: 3px; line-height: 1.4; }
+
+  .pantry-add {
+    margin: 14px 22px;
+    display: flex; gap: 8px;
+  }
+  .pantry-input {
+    flex: 1; height: 46px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    padding: 0 16px;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .pantry-input:focus { border-color: rgba(224,64,251,0.5); }
+  .pantry-input::placeholder { color: var(--text-faint); }
+  .pantry-add-btn {
+    width: 46px; height: 46px;
+    border-radius: var(--r-md);
+    background: var(--grad);
+    color: white; font-size: 22px; font-weight: 400;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pantry-cats { padding: 6px 22px 24px; }
+
+  /* =================================================================
+     PROFILE / SETTINGS
+  ================================================================== */
+  .profile-head { padding: 30px 22px 18px; text-align: center; }
+  .profile-head .av {
+    width: 76px; height: 76px; border-radius: 50%;
+    margin: 0 auto 14px;
+    background: var(--grad);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 800;
+    box-shadow: var(--shadow-glow);
+  }
+  .profile-head .name { font-weight: 800; font-size: 22px; }
+  .profile-head .email { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .profile-head .plan-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 12px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--grad-soft);
+    border: 1px solid rgba(224,64,251,0.3);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #f0aaff;
+  }
+
+  .settings-list { padding: 8px 22px 24px; }
+  .setting-group {
+    margin-top: 22px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .setting-group h5 {
+    padding: 14px 16px 6px;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-dim); font-weight: 700;
+  }
+  .setting-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .setting-row:first-of-type { border-top: none; }
+  .setting-row .ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); flex-shrink: 0;
+  }
+  .setting-row .info { flex: 1; }
+  .setting-row .name { font-size: 14px; font-weight: 600; }
+  .setting-row .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .setting-row .arrow { color: var(--text-faint); }
+
+  /* loved/disliked list */
+  .taste-tabs {
+    margin: 18px 22px;
+    display: flex; gap: 6px;
+    background: rgba(255,255,255,0.04);
+    padding: 4px; border-radius: 12px;
+  }
+  .taste-tab {
+    flex: 1; padding: 9px 0;
+    border-radius: 9px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-dim);
+    transition: all 0.15s;
+  }
+  .taste-tab.active {
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset;
+  }
+
+  /* =================================================================
+     BOTTOM NAV
+  ================================================================== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    max-width: 460px; margin: 0 auto;
+    padding: 10px 14px 22px;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-around;
+    z-index: 40;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px 6px;
+    color: var(--text-faint);
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+    transition: color 0.15s;
+  }
+  .nav-item.active { color: var(--text); }
+  .nav-item.active .nav-ico {
+    background: var(--grad-soft);
+    border-color: rgba(224,64,251,0.3);
+    color: #f0aaff;
+  }
+  .nav-ico {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+
+  /* =================================================================
+     MODAL / SHEET
+  ================================================================== */
+  .sheet-back {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    display: none; align-items: flex-end; justify-content: center;
+    animation: fadeIn 0.2s;
+  }
+  .sheet-back.open { display: flex; }
+  .sheet {
+    width: 100%; max-width: 460px;
+    background: var(--bg-2);
+    border-top-left-radius: 24px; border-top-right-radius: 24px;
+    border: 1px solid var(--line-2);
+    border-bottom: none;
+    padding: 12px 22px 28px;
+    animation: slideUp 0.25s ease;
+    max-height: 85vh; overflow-y: auto;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: var(--line-2); margin: 0 auto 18px; }
+  .sheet h3 { font-weight: 800; font-size: 22px; letter-spacing: -0.01em; }
+  .sheet p { font-size: 14px; color: var(--text-dim); margin-top: 8px; line-height: 1.5; }
+
+  /* day picker */
+  .day-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .day-btn {
+    padding: 12px 4px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-2);
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .day-btn .d { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); font-weight: 700; }
+  .day-btn .n { font-size: 18px; font-weight: 800; margin-top: 4px; }
+  .day-btn.taken {
+    opacity: 0.4;
+  }
+  .day-btn.selected {
+    background: var(--grad);
+    border-color: transparent;
+    color: white;
+  }
+  .day-btn.selected .d { color: rgba(255,255,255,0.85); }
+
+  /* toast */
+  .toast-host {
+    position: fixed; bottom: 110px; left: 0; right: 0;
+    z-index: 200; pointer-events: none;
+    display: flex; justify-content: center;
+  }
+  .toast {
+    background: rgba(20, 20, 28, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 10px;
+    animation: toastIn 0.25s ease, toastOut 0.3s ease 2.6s forwards;
+  }
+  .toast .ico {
+    color: var(--success);
+  }
+  @keyframes toastIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes toastOut {
+    to { transform: translateY(20px); opacity: 0; }
+  }
+
+  /* helpers */
+  .icon-svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-sm { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .hidden { display: none !important; }
+
+  /* infinite scroll loader */
+  .scroll-loader {
+    text-align: center; padding: 24px;
+    color: var(--text-faint); font-size: 12px;
+  }
+  .scroll-loader .spin {
+    display: inline-block; width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--line-2);
+    border-top-color: var(--fuchsia);
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* --- Setup modal (first-run API keys) --- */
+  .setup-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(10,10,15,0.96);
+    backdrop-filter: blur(20px);
+    display: none; align-items: flex-start; justify-content: center;
+    overflow-y: auto; padding: 40px 20px;
+  }
+  .setup-overlay.open { display: flex; }
+  .setup-card {
+    width: 100%; max-width: 440px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid var(--line-1);
+    border-radius: 24px;
+    padding: 28px 24px 24px;
+    color: var(--text);
+  }
+  .setup-card h2 {
+    font-family: 'Raleway'; font-weight: 800; font-size: 24px;
+    letter-spacing: -0.02em; margin: 0 0 6px;
+  }
+  .setup-card .sub { font-size: 13px; color: var(--text-dim); margin: 0 0 22px; line-height: 1.5; }
+  .setup-field { margin-bottom: 16px; }
+  .setup-field label {
+    display: block; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .setup-field input {
+    width: 100%; box-sizing: border-box;
+    background: rgba(0,0,0,0.4); border: 1px solid var(--line-1);
+    border-radius: 12px; color: var(--text);
+    padding: 12px 14px; font-size: 14px; font-family: inherit;
+    outline: none;
+  }
+  .setup-field input:focus { border-color: var(--blue); }
+  .setup-field .help { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+  .setup-field .help a { color: var(--blue); text-decoration: none; }
+  .setup-card .save-btn {
+    width: 100%; margin-top: 8px;
+    background: linear-gradient(135deg, var(--blue), var(--fuchsia));
+    color: #fff; border: 0; border-radius: 14px;
+    padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit;
+    cursor: pointer;
+  }
+  .setup-card .save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .setup-card .skip-link {
+    display: block; text-align: center; margin-top: 12px;
+    font-size: 12px; color: var(--text-dim); cursor: pointer;
+  }
+
+  /* --- Dish images (replace emoji) --- */
+  .recipe-card .visual .dish-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .dinner-row .thumb img,
+  .taste-row .thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: inherit;
+  }
+  .dinner-row .thumb,
+  .taste-row .thumb {
+    overflow: hidden;
+  }
+
+  /* --- Magic link form on welcome --- */
+  .magic-form {
+    display: none; flex-direction: column; gap: 10px;
+    margin-top: 12px;
+  }
+  .magic-form.open { display: flex; }
+  .magic-form input {
+    width: 100%; box-sizing: border-box;
+    background: rgba(0,0,0,0.4); border: 1px solid var(--line-1);
+    border-radius: 12px; color: var(--text);
+    padding: 14px 16px; font-size: 15px; font-family: inherit;
+    outline: none;
+  }
+  .magic-form input:focus { border-color: var(--blue); }
+  .magic-form .send-btn {
+    background: linear-gradient(135deg, var(--blue), var(--fuchsia));
+    color: #fff; border: 0; border-radius: 14px;
+    padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit;
+    cursor: pointer;
+  }
+  .magic-sent {
+    display: none; text-align: center; padding: 18px 16px;
+    border: 1px solid var(--line-1); border-radius: 16px;
+    background: rgba(59,139,235,0.08);
+    margin-top: 12px;
+  }
+  .magic-sent.open { display: block; }
+  .magic-sent .icon { font-size: 28px; margin-bottom: 6px; }
+  .magic-sent .heading { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .magic-sent .sub { font-size: 12px; color: var(--text-dim); }
+  .magic-sent .resend { color: var(--blue); cursor: pointer; font-size: 12px; margin-top: 8px; display: inline-block; }
+
+  /* --- Spoonacular attribution --- */
+  .attrib-footer {
+    text-align: center; padding: 16px 22px 90px;
+    font-size: 11px; color: var(--text-dim); opacity: 0.7;
+  }
+  .attrib-footer a { color: inherit; text-decoration: underline; }
+
+  /* --- Recipe loading state --- */
+  .recipe-loading {
+    text-align: center; padding: 40px 22px;
+    color: var(--text-dim); font-size: 13px;
+  }
+  .recipe-loading .spin {
+    display: inline-block; width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--line-2);
+    border-top-color: var(--fuchsia);
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 10px;
+  }
+</style>
+</head>
+<body>
+  <!-- =========================================================
+       SETUP OVERLAY (first run — collect API keys)
+       ========================================================= -->
+  <div class="setup-overlay" id="setup-overlay">
+    <div class="setup-card">
+      <h2>One-time setup</h2>
+      <p class="sub">Paste your API keys to wire up auth + recipes. Stored locally in your browser. You'll only see this once.</p>
+
+      <div class="setup-field">
+        <label>Supabase Project URL</label>
+        <input id="setup-sb-url" placeholder="https://xxxxx.supabase.co" autocomplete="off" spellcheck="false" />
+        <div class="help">Find it in your <a href="https://app.supabase.com" target="_blank" rel="noopener">Supabase dashboard</a> → Project Settings → API → Project URL.</div>
+      </div>
+
+      <div class="setup-field">
+        <label>Supabase Anon Key</label>
+        <input id="setup-sb-key" placeholder="eyJhbGciOi..." autocomplete="off" spellcheck="false" />
+        <div class="help">Same page in Supabase → API → "anon public" key. (Safe to use client-side.)</div>
+      </div>
+
+      <div class="setup-field">
+        <label>Spoonacular API Key</label>
+        <input id="setup-spoon-key" placeholder="abc123..." autocomplete="off" spellcheck="false" />
+        <div class="help">Get a free key at <a href="https://spoonacular.com/food-api/console" target="_blank" rel="noopener">spoonacular.com/food-api/console</a>. 50 points/day on free tier.</div>
+      </div>
+
+      <button class="save-btn" id="setup-save" onclick="saveSetup()">Save and continue</button>
+      <span class="skip-link" onclick="skipSetup()">Skip for now (use mock data)</span>
+    </div>
+  </div>
+
+  <div class="bg-stage" aria-hidden="true">
+    <div class="orb a"></div>
+    <div class="orb b"></div>
+    <div class="orb c"></div>
+  </div>
+
+  <div class="app">
+
+    <!-- =========================================================
+         WELCOME / LOGIN
+    ========================================================== -->
+    <section id="screen-welcome" class="screen active">
+      <div class="welcome-top">
+        <div class="brand"><span class="dot"></span> Menu Select</div>
+        <div class="welcome-eyebrow"><span class="ai-chip">AI · Premium</span></div>
+        <h1 class="welcome-h1">Restaurant night.<br><em>Every night.</em></h1>
+        <p class="welcome-sub">Plan your week's dinners. We'll build one grocery list and ship it to Instacart.</p>
+
+        <div class="price-line">
+          <span class="price">$1</span>
+          <span class="per">/ week</span>
+          <span class="trial">7-day free trial</span>
+        </div>
+
+        <div class="welcome-bullets">
+          <div class="welcome-bullet">
+            <span class="check">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span><b>Plan a full week</b> — pick 3–7 dinners at once.</span>
+          </div>
+          <div class="welcome-bullet">
+            <span class="check">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span><b>One smart list</b> — shared ingredients deduplicated automatically.</span>
+          </div>
+          <div class="welcome-bullet">
+            <span class="check">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span><b>Pantry memory</b> — we learn what you keep on hand.</span>
+          </div>
+          <div class="welcome-bullet">
+            <span class="check">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span><b>Send to Instacart</b> or email yourself the list.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-stack">
+        <button class="btn-auth btn-apple" onclick="signInComingSoon('Apple')">
+          <svg width="18" height="20" viewBox="0 0 18 20" fill="currentColor"><path d="M14.94 10.66c-.02-2.18 1.78-3.23 1.86-3.28-1.01-1.48-2.59-1.69-3.16-1.71-1.34-.13-2.62.79-3.31.79-.69 0-1.74-.77-2.86-.75-1.47.02-2.83.85-3.59 2.16-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.21 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.31-.89-2.33-3.51zM12.86 4.27c.6-.74 1.01-1.75.9-2.77-.87.04-1.94.59-2.56 1.32-.55.65-1.04 1.69-.91 2.69.97.07 1.97-.49 2.57-1.24z"/></svg>
+          Continue with Apple
+        </button>
+        <button class="btn-auth btn-google" onclick="signInComingSoon('Google')">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.97v2.33A8.99 8.99 0 0 0 9 18z" fill="#34A853"/><path d="M3.97 10.71A5.4 5.4 0 0 1 3.68 9c0-.59.1-1.17.29-1.71V4.96H.97A8.99 8.99 0 0 0 0 9c0 1.45.35 2.83.97 4.04l3-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A8.97 8.97 0 0 0 9 0 8.99 8.99 0 0 0 .97 4.96l3 2.33C4.68 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="btn-auth btn-email" onclick="openMagicForm()">Sign in with email</button>
+
+        <div class="magic-form" id="magic-form">
+          <input type="email" id="magic-email" placeholder="you@email.com" autocomplete="email" />
+          <button class="send-btn" onclick="sendMagicLink()">Send magic link</button>
+        </div>
+
+        <div class="magic-sent" id="magic-sent">
+          <div class="icon">✉️</div>
+          <div class="heading">Check your email</div>
+          <div class="sub">We sent a sign-in link to <b id="magic-sent-email">you@email.com</b>. Tap it to come back here.</div>
+          <span class="resend" onclick="openMagicForm()">Wrong email? Try again</span>
+        </div>
+      </div>
+
+      <p class="auth-fine">
+        7 days free, then $1/week. Cancel anytime.<br>
+        By continuing, you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>.
+      </p>
+    </section>
+
+    <!-- =========================================================
+         ONBOARDING — DIET
+    ========================================================== -->
+    <section id="screen-onb-diet" class="screen">
+      <div class="topbar">
+        <button class="back" onclick="goWelcome()">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="title">Set up your taste</div>
+      </div>
+      <div class="onb-wrap">
+        <div class="onb-progress">
+          <div class="step current"></div>
+          <div class="step"></div>
+          <div class="step"></div>
+        </div>
+        <div class="onb-eyebrow">Step 1 · Diet</div>
+        <h2 class="onb-h2">Any dietary <em>preferences?</em></h2>
+        <p class="onb-sub">Pick any that apply. Skip if you eat everything — most people do.</p>
+
+        <div class="chip-cloud" id="diet-chips">
+          <button class="chip" data-val="vegetarian">Vegetarian</button>
+          <button class="chip" data-val="vegan">Vegan</button>
+          <button class="chip" data-val="pescatarian">Pescatarian</button>
+          <button class="chip" data-val="gluten-free">Gluten-free</button>
+          <button class="chip" data-val="dairy-free">Dairy-free</button>
+          <button class="chip" data-val="low-carb">Low carb</button>
+          <button class="chip" data-val="keto">Keto</button>
+          <button class="chip" data-val="paleo">Paleo</button>
+          <button class="chip" data-val="mediterranean">Mediterranean</button>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <button class="btn-primary" onclick="goScreen('screen-onb-allergy')">Continue</button>
+        <button class="btn-ghost" style="margin-top:8px;width:100%" onclick="goScreen('screen-onb-allergy')">Skip — I eat everything</button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         ONBOARDING — ALLERGIES
+    ========================================================== -->
+    <section id="screen-onb-allergy" class="screen">
+      <div class="topbar">
+        <button class="back" onclick="goScreen('screen-onb-diet')">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="title">Set up your taste</div>
+      </div>
+      <div class="onb-wrap">
+        <div class="onb-progress">
+          <div class="step done"></div>
+          <div class="step current"></div>
+          <div class="step"></div>
+        </div>
+        <div class="onb-eyebrow">Step 2 · Allergies</div>
+        <h2 class="onb-h2">Anything to <em>avoid?</em></h2>
+        <p class="onb-sub">We'll filter recipes and warn you on the grocery list.</p>
+
+        <div class="chip-cloud" id="allergy-chips">
+          <button class="chip" data-val="peanuts">Peanuts</button>
+          <button class="chip" data-val="tree-nuts">Tree nuts</button>
+          <button class="chip" data-val="shellfish">Shellfish</button>
+          <button class="chip" data-val="eggs">Eggs</button>
+          <button class="chip" data-val="soy">Soy</button>
+          <button class="chip" data-val="dairy">Dairy</button>
+          <button class="chip" data-val="gluten">Gluten</button>
+          <button class="chip" data-val="sesame">Sesame</button>
+          <button class="chip" data-val="cilantro">Cilantro</button>
+          <button class="chip" data-val="mushrooms">Mushrooms</button>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <button class="btn-primary" onclick="goScreen('screen-onb-goals')">Continue</button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         ONBOARDING — GOALS
+    ========================================================== -->
+    <section id="screen-onb-goals" class="screen">
+      <div class="topbar">
+        <button class="back" onclick="goScreen('screen-onb-allergy')">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="title">Set up your taste</div>
+      </div>
+      <div class="onb-wrap">
+        <div class="onb-progress">
+          <div class="step done"></div>
+          <div class="step done"></div>
+          <div class="step current"></div>
+        </div>
+        <div class="onb-eyebrow">Step 3 · Goals</div>
+        <h2 class="onb-h2">What's your <em>why?</em></h2>
+        <p class="onb-sub">Pick all that fit. We'll tune your weekly menu to match.</p>
+
+        <div class="chip-cloud" id="goal-chips">
+          <button class="chip" data-val="save-money">💸 Save money on takeout</button>
+          <button class="chip" data-val="lose-weight">⚖️ Lose 10 lbs in 10 weeks</button>
+          <button class="chip" data-val="family">👨‍👩‍👧 Feed the family well</button>
+          <button class="chip" data-val="date-night">🍷 More date nights at home</button>
+          <button class="chip" data-val="quick">⚡️ Fast weeknight meals</button>
+          <button class="chip" data-val="learn">👨‍🍳 Learn to cook better</button>
+          <button class="chip" data-val="reduce-waste">🌿 Reduce food waste</button>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <button class="btn-primary" onclick="finishOnboarding()">
+          Start your free trial
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         HOME — WEEKLY MENU
+    ========================================================== -->
+    <section id="screen-home" class="screen">
+      <div class="home-hero">
+        <div class="home-greeting">
+          <div class="hi">Hello, <b id="hi-name">friend</b></div>
+          <div class="avatar" id="hi-av">M</div>
+        </div>
+        <h1 class="home-h1">This Week's <em>Menu</em></h1>
+        <div class="home-meta">
+          <span id="week-range">Mon, Nov 10 — Sun, Nov 16</span>
+          <span class="dot-sep"></span>
+          <span class="ai-chip" style="padding: 3px 8px; font-size: 9px;">AI · Personalized</span>
+        </div>
+      </div>
+
+      <div class="week-card" id="week-card">
+        <div class="row">
+          <span class="label">Dinners planned</span>
+          <span class="ai-chip" style="padding: 3px 8px; font-size: 9px;">Live</span>
+        </div>
+        <div class="row" style="margin-top: 6px; align-items: flex-end;">
+          <span class="count"><span id="dinner-count">0</span><span style="font-size:14px;color:var(--text-dim);font-weight:500;"> / 7</span></span>
+          <span style="font-size:12px;color:var(--text-dim);" id="ingredient-count">0 ingredients</span>
+        </div>
+        <div class="save" id="savings-line">$0 saved vs. takeout</div>
+      </div>
+
+      <div class="home-actions">
+        <button class="action-tile" onclick="goScreen('screen-browse')">
+          <div class="icon">
+            <svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="name">Add a dinner</div>
+          <div class="sub">Browse recipes</div>
+        </button>
+        <button class="action-tile" onclick="openShoppingList()">
+          <div class="icon">
+            <svg class="icon-sm" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <div class="name">Shopping list</div>
+          <div class="sub">Build &amp; send</div>
+        </button>
+      </div>
+
+      <div class="section-h">
+        <h3>Your dinners</h3>
+        <span class="link" id="clear-link" style="display:none;cursor:pointer;" onclick="clearWeek()">Clear all</span>
+      </div>
+      <div id="dinner-list-host"></div>
+    </section>
+
+    <!-- =========================================================
+         BROWSE RECIPES
+    ========================================================== -->
+    <section id="screen-browse" class="screen">
+      <div class="topbar">
+        <button class="back" onclick="goScreen('screen-home')">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="title">Add to this week</div>
+        <div class="spacer"></div>
+        <span class="pill-action" id="browse-count">0 / 7</span>
+      </div>
+
+      <div class="browse-head">
+        <h2>Pick your <em>dinners</em></h2>
+        <p>Tap to add to this week. Mix &amp; match — one list, one cart.</p>
+      </div>
+
+      <div class="filters-row" id="filter-pills">
+        <button class="filter-chip active" data-cat="all">All</button>
+        <button class="filter-chip" data-cat="date">Date Night</button>
+        <button class="filter-chip" data-cat="family">Family</button>
+        <button class="filter-chip" data-cat="quick">Quick</button>
+        <button class="filter-chip" data-cat="vegetarian">Vegetarian</button>
+        <button class="filter-chip" data-cat="healthy">Healthy</button>
+      </div>
+
+      <div class="recipe-grid" id="recipe-grid"></div>
+      <div class="recipe-loading" id="recipe-loading" style="display:none;">
+        <span class="spin"></span>Loading fresh recipes…
+      </div>
+      <div class="scroll-loader" id="scroll-loader" style="display:none;">
+        <span class="spin"></span> Loading more recipes...
+      </div>
+      <div class="attrib-footer" id="spoon-attrib" style="display:none;">
+        Recipe data and images by <a href="https://spoonacular.com/food-api" target="_blank" rel="noopener">spoonacular</a>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SHOPPING LIST
+    ========================================================== -->
+    <section id="screen-list" class="screen">
+      <div class="topbar">
+        <button class="back" onclick="goScreen('screen-home')">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="title">Shopping List</div>
+      </div>
+
+      <div class="list-head">
+        <h2>Your <em>list</em></h2>
+        <p style="font-size:13px;color:var(--text-dim);margin-top:6px;">
+          <span id="list-meal-count">0 dinners</span> · <span id="list-item-count">0 items</span>
+        </p>
+      </div>
+
+      <div class="list-summary" id="list-summary">
+        <div class="icon">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="copy">
+          <div class="head"><span class="num" id="savings-amount">$0</span> saved this week</div>
+          <div class="sub">vs. ordering DoorDash for the same meals</div>
+        </div>
+      </div>
+
+      <div class="list-toggle" id="pantry-toggle" onclick="togglePantryFilter()">
+        <div class="switch"></div>
+        <div class="copy">
+          <div class="head">Hide items I have</div>
+          <div class="sub" id="pantry-toggle-sub">Pulls from your pantry</div>
+        </div>
+      </div>
+
+      <div class="list-categories" id="list-categories"></div>
+
+      <div class="output-stack">
+        <button class="btn-instacart" onclick="sendToInstacart()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13 5.4 5M7 13 4.7 15.3a1 1 0 0 0 .7 1.7H17M9 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM20 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
+          Send to Instacart
+        </button>
+        <button class="btn-email" onclick="emailList()">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email me the list
+        </button>
+        <p style="text-align:center;font-size:11px;color:var(--text-faint);margin-top:10px;line-height:1.5;">
+          Instacart pre-loads your cart — pick a store, confirm, and pay them directly.
+        </p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PANTRY
+    ========================================================== -->
+    <section id="screen-pantry" class="screen">
+      <div class="pantry-head">
+        <h2>Your <em>pantry</em></h2>
+        <p>Stuff you usually have on hand. We'll skip these on your list.</p>
+      </div>
+
+      <div class="pantry-banner">
+        <div class="ico">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="copy">
+          <div class="head">Auto-tracking is in beta</div>
+          <div class="sub">After your first Instacart order, we'll suggest pantry items based on what you bought.</div>
+        </div>
+      </div>
+
+      <div class="pantry-add">
+        <input class="pantry-input" id="pantry-input" placeholder="Add an item — e.g., olive oil" onkeydown="if(event.key==='Enter')addPantry()" />
+        <button class="pantry-add-btn" onclick="addPantry()">+</button>
+      </div>
+
+      <div class="pantry-cats" id="pantry-cats"></div>
+    </section>
+
+    <!-- =========================================================
+         PROFILE
+    ========================================================== -->
+    <section id="screen-profile" class="screen">
+      <div class="profile-head">
+        <div class="av" id="prof-av">M</div>
+        <div class="name" id="prof-name">Friend</div>
+        <div class="email" id="prof-email">you@example.com</div>
+        <div class="plan-pill">
+          <span style="width:6px;height:6px;border-radius:50%;background:#E040FB;display:inline-block;"></span>
+          Premium · Trial
+        </div>
+      </div>
+
+      <div class="settings-list">
+        <div class="setting-group">
+          <h5>Taste &amp; preferences</h5>
+          <button class="setting-row" onclick="goScreen('screen-taste')">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">Loves &amp; dislikes</div>
+              <div class="sub" id="taste-summary">0 loved · 0 disliked</div>
+            </div>
+            <svg class="icon-sm arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="setting-row" onclick="goScreen('screen-onb-diet'); fromProfile=true;">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">Diet &amp; allergies</div>
+              <div class="sub" id="diet-summary">No restrictions</div>
+            </div>
+            <svg class="icon-sm arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="setting-row" onclick="goScreen('screen-pantry'); setNav('pantry');">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">Pantry</div>
+              <div class="sub" id="pantry-summary">0 items</div>
+            </div>
+            <svg class="icon-sm arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="setting-group">
+          <h5>Subscription</h5>
+          <button class="setting-row" onclick="openSheet('billing-sheet')">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">Plan &amp; billing</div>
+              <div class="sub">$1/week — trial ends Nov 17</div>
+            </div>
+            <svg class="icon-sm arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="setting-row" onclick="openSheet('savings-sheet')">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">Savings vs. takeout</div>
+              <div class="sub" id="lifetime-savings-sub">Calculated weekly</div>
+            </div>
+            <svg class="icon-sm arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="setting-group">
+          <h5>Account</h5>
+          <button class="setting-row" onclick="showSetup()">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">API keys</div>
+              <div class="sub">Update Supabase &amp; Spoonacular keys</div>
+            </div>
+            <svg class="icon-sm arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="setting-row" onclick="signOut()">
+            <div class="ico">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            </div>
+            <div class="info">
+              <div class="name">Sign out</div>
+              <div class="sub">You'll keep your saved data</div>
+            </div>
+          </button>
+        </div>
+        <p style="text-align:center;color:var(--text-faint);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-top:30px;">
+          Menu Select · v1.0 Premium
+        </p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TASTE PROFILE (Loves / Dislikes)
+    ========================================================== -->
+    <section id="screen-taste" class="screen">
+      <div class="topbar">
+        <button class="back" onclick="goScreen('screen-profile')">
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="title">Loves &amp; dislikes</div>
+      </div>
+      <div style="padding: 8px 0;">
+        <div class="taste-tabs" id="taste-tabs">
+          <button class="taste-tab active" data-tab="loved">❤️ Loved</button>
+          <button class="taste-tab" data-tab="disliked">👎 Disliked</button>
+        </div>
+        <div id="taste-list" style="padding: 0 22px;"></div>
+      </div>
+    </section>
+
+  </div><!-- /app -->
+
+  <!-- =========================================================
+       BOTTOM NAV
+  ========================================================== -->
+  <nav class="bottom-nav" id="bottom-nav" style="display:none;">
+    <button class="nav-item active" data-nav="home" onclick="setNav('home'); goScreen('screen-home')">
+      <div class="nav-ico">
+        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M3 9 12 2l9 7v11a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg>
+      </div>
+      Menu
+    </button>
+    <button class="nav-item" data-nav="browse" onclick="setNav('browse'); goScreen('screen-browse')">
+      <div class="nav-ico">
+        <svg class="icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      Browse
+    </button>
+    <button class="nav-item" data-nav="list" onclick="setNav('list'); openShoppingList()">
+      <div class="nav-ico">
+        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/></svg>
+      </div>
+      List
+    </button>
+    <button class="nav-item" data-nav="pantry" onclick="setNav('pantry'); goScreen('screen-pantry')">
+      <div class="nav-ico">
+        <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      Pantry
+    </button>
+    <button class="nav-item" data-nav="profile" onclick="setNav('profile'); goScreen('screen-profile')">
+      <div class="nav-ico">
+        <svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
+      </div>
+      You
+    </button>
+  </nav>
+
+  <!-- =========================================================
+       SHEETS
+  ========================================================== -->
+  <div class="sheet-back" id="sheet-back" onclick="closeSheet(event)">
+
+    <!-- Day picker (assigns recipe to a day) -->
+    <div class="sheet" id="day-sheet" onclick="event.stopPropagation()" style="display:none;">
+      <div class="sheet-handle"></div>
+      <h3 id="day-sheet-title">Pick a night</h3>
+      <p id="day-sheet-sub">Which night are you cooking this?</p>
+      <div class="day-grid" id="day-grid"></div>
+      <button class="btn-primary" id="day-confirm" style="margin-top:18px;" onclick="confirmDay()" disabled>Add to week</button>
+    </div>
+
+    <!-- Billing sheet -->
+    <div class="sheet" id="billing-sheet" onclick="event.stopPropagation()" style="display:none;">
+      <div class="sheet-handle"></div>
+      <h3>Plan &amp; billing</h3>
+      <p>You're on the 7-day free trial. After that, $1/week, billed weekly. Cancel anytime from this screen.</p>
+      <div style="margin-top:20px;padding:16px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid var(--line-2);">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;">
+          <div style="font-weight:800;font-size:18px;">Premium</div>
+          <div style="font-weight:800;font-size:18px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;">$1<span style="font-size:11px;color:var(--text-dim);font-weight:500;-webkit-text-fill-color:var(--text-dim);"> / week</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Trial ends Nov 17, 2026</div>
+      </div>
+      <button class="btn-secondary" style="margin-top:14px;" onclick="toast('Switched to annual — $52/year')">Switch to annual ($52/yr — save $0)</button>
+      <button class="btn-ghost" style="width:100%;margin-top:8px;color:#ff6b6b;" onclick="toast('We\'d hate to see you go. Email support@menu-selection.com')">Cancel subscription</button>
+    </div>
+
+    <!-- Savings sheet -->
+    <div class="sheet" id="savings-sheet" onclick="event.stopPropagation()" style="display:none;">
+      <div class="sheet-handle"></div>
+      <h3>Your savings</h3>
+      <p>Estimated using avg DoorDash receipt of <b>$32</b> per dinner (food + tax + tip + delivery).</p>
+      <div style="margin-top:20px;padding:18px;border-radius:14px;background:linear-gradient(135deg,rgba(52,211,153,0.1),rgba(59,139,235,0.08));border:1px solid rgba(52,211,153,0.25);">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--success);font-weight:700;">This week</div>
+        <div style="font-size:34px;font-weight:800;margin-top:4px;color:var(--success);" id="sheet-savings-week">$0</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:6px;" id="sheet-savings-detail">No dinners planned yet</div>
+      </div>
+      <p style="margin-top:18px;font-size:12px;color:var(--text-faint);line-height:1.55;">
+        Subscription: $1/week. If you skip even one delivery this week, the app already paid for itself a dozen times over.
+      </p>
+    </div>
+
+    <!-- Email list sheet -->
+    <div class="sheet" id="email-sheet" onclick="event.stopPropagation()" style="display:none;">
+      <div class="sheet-handle"></div>
+      <h3>Email yourself the list</h3>
+      <p>We'll open your mail app with the full list ready to send.</p>
+      <input class="pantry-input" id="email-target" style="margin-top:18px;" placeholder="you@example.com" />
+      <button class="btn-primary" style="margin-top:14px;" onclick="confirmEmail()">Open mail</button>
+    </div>
+
+    <!-- Instacart confirm sheet -->
+    <div class="sheet" id="ic-sheet" onclick="event.stopPropagation()" style="display:none;">
+      <div class="sheet-handle"></div>
+      <h3>Send to Instacart</h3>
+      <p id="ic-sheet-body">We'll open Instacart in a new tab with your items pre-searched. You'll pick the store and check out there.</p>
+      <div style="margin-top:18px;padding:14px;border-radius:12px;background:rgba(67,176,42,0.08);border:1px solid rgba(67,176,42,0.25);font-size:12px;">
+        <b style="color:#7ed957;">Heads up:</b> You're using the deeplink version. Once your Instacart Developer key is approved, we'll switch to the full Shopping List API and pre-load your cart automatically.
+      </div>
+      <button class="btn-instacart" style="margin-top:18px;" onclick="confirmInstacart()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13 5.4 5M7 13 4.7 15.3a1 1 0 0 0 .7 1.7H17M9 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM20 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
+        Open Instacart
+      </button>
+      <button class="btn-ghost" style="width:100%;margin-top:6px;" onclick="closeSheet()">Not now</button>
+    </div>
+
+  </div><!-- /sheet-back -->
+
+  <!-- toast -->
+  <div class="toast-host" id="toast-host"></div>
+
+<script>
+/* ====================================================================
+   MENU SELECT PREMIUM — App logic
+==================================================================== */
+
+/* ---------- Recipe data ---------- */
+const RECIPES_FALLBACK = [
+  { id:'beef-tenderloin', name:'Beef Tenderloin with Shallot Mustard Sauce', cat:['date'], emoji:'🥩',
+    desc:'A restaurant-worthy cut with a rich balsamic-mustard pan sauce.',
+    time:35, serves:'2–4',
+    ingredients:[
+      {n:'beef tenderloin', q:1.5, u:'lb', cat:'meat'},
+      {n:'shallot', q:2, u:'', cat:'produce'},
+      {n:'dijon mustard', q:2, u:'tbsp', cat:'pantry'},
+      {n:'balsamic vinegar', q:3, u:'tbsp', cat:'pantry'},
+      {n:'butter', q:3, u:'tbsp', cat:'dairy'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'fresh thyme', q:1, u:'sprig', cat:'produce'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+      {n:'black pepper', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'honey-sesame-chicken', name:'Honey Sesame Chicken', cat:['family','quick'], emoji:'🍗',
+    desc:'Crispy chicken in a sticky honey-sesame glaze with a kick of Sriracha.',
+    time:30, serves:'4',
+    ingredients:[
+      {n:'boneless chicken breasts', q:2, u:'lb', cat:'meat'},
+      {n:'honey', q:3, u:'tbsp', cat:'pantry'},
+      {n:'soy sauce', q:3, u:'tbsp', cat:'pantry'},
+      {n:'sesame oil', q:1, u:'tbsp', cat:'pantry'},
+      {n:'sesame seeds', q:2, u:'tbsp', cat:'pantry'},
+      {n:'sriracha', q:1, u:'tbsp', cat:'pantry'},
+      {n:'cornstarch', q:3, u:'tbsp', cat:'pantry'},
+      {n:'garlic', q:3, u:'cloves', cat:'produce'},
+      {n:'fresh ginger', q:1, u:'tbsp', cat:'produce'},
+      {n:'green onions', q:3, u:'', cat:'produce'},
+      {n:'jasmine rice', q:1, u:'cup', cat:'pantry'},
+      {n:'vegetable oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'chicken-caprese', name:'Chicken Caprese', cat:['date','quick'], emoji:'🍅',
+    desc:'Pan-seared chicken with buffalo mozzarella, tomatoes, balsamic drizzle.',
+    time:25, serves:'2',
+    ingredients:[
+      {n:'boneless chicken breasts', q:1, u:'lb', cat:'meat'},
+      {n:'buffalo mozzarella', q:8, u:'oz', cat:'dairy'},
+      {n:'roma tomatoes', q:2, u:'', cat:'produce'},
+      {n:'fresh basil', q:1, u:'bunch', cat:'produce'},
+      {n:'balsamic vinegar', q:2, u:'tbsp', cat:'pantry'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'garlic', q:2, u:'cloves', cat:'produce'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'tuscan-ragu', name:'Tuscan Sausage Ragù', cat:['family'], emoji:'🍝',
+    desc:'Slow-simmered ragù with sweet and hot sausage, red wine, tomatoes.',
+    time:50, serves:'4–6',
+    ingredients:[
+      {n:'italian sausage', q:1, u:'lb', cat:'meat'},
+      {n:'crushed tomatoes', q:28, u:'oz', cat:'pantry'},
+      {n:'red wine', q:1, u:'cup', cat:'pantry'},
+      {n:'yellow onion', q:1, u:'', cat:'produce'},
+      {n:'garlic', q:4, u:'cloves', cat:'produce'},
+      {n:'pappardelle pasta', q:1, u:'lb', cat:'pantry'},
+      {n:'parmesan', q:4, u:'oz', cat:'dairy'},
+      {n:'fresh basil', q:1, u:'bunch', cat:'produce'},
+      {n:'olive oil', q:3, u:'tbsp', cat:'pantry'},
+      {n:'red pepper flakes', q:1, u:'tsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'lemon-garlic-chicken', name:'Lemon Garlic Chicken', cat:['quick','family'], emoji:'🍋',
+    desc:'Bright, buttery, done in 25 minutes. Pantry staples you already have.',
+    time:25, serves:'2–4',
+    ingredients:[
+      {n:'boneless chicken breasts', q:1.5, u:'lb', cat:'meat'},
+      {n:'lemon', q:2, u:'', cat:'produce'},
+      {n:'garlic', q:5, u:'cloves', cat:'produce'},
+      {n:'butter', q:3, u:'tbsp', cat:'dairy'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'fresh parsley', q:1, u:'bunch', cat:'produce'},
+      {n:'chicken broth', q:0.5, u:'cup', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'pasta-primavera', name:'Pasta Primavera with Lemon-Caper Sauce', cat:['vegetarian'], emoji:'🌿',
+    desc:'Spring vegetables tossed with linguine in a lemon-caper cream sauce.',
+    time:35, serves:'4',
+    ingredients:[
+      {n:'linguine', q:1, u:'lb', cat:'pantry'},
+      {n:'asparagus', q:1, u:'bunch', cat:'produce'},
+      {n:'cherry tomatoes', q:1, u:'pint', cat:'produce'},
+      {n:'zucchini', q:1, u:'', cat:'produce'},
+      {n:'yellow squash', q:1, u:'', cat:'produce'},
+      {n:'frozen peas', q:1, u:'cup', cat:'frozen'},
+      {n:'capers', q:2, u:'tbsp', cat:'pantry'},
+      {n:'lemon', q:1, u:'', cat:'produce'},
+      {n:'heavy cream', q:0.5, u:'cup', cat:'dairy'},
+      {n:'parmesan', q:4, u:'oz', cat:'dairy'},
+      {n:'butter', q:2, u:'tbsp', cat:'dairy'},
+      {n:'olive oil', q:3, u:'tbsp', cat:'pantry'},
+      {n:'garlic', q:3, u:'cloves', cat:'produce'},
+      {n:'fresh basil', q:1, u:'bunch', cat:'produce'},
+      {n:'shallot', q:1, u:'', cat:'produce'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+      {n:'black pepper', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'gnocchi-tomato', name:'Gnocchi with Tomato Sauce', cat:['vegetarian','quick'], emoji:'🍅',
+    desc:'Pillowy gnocchi in a rich, garlicky tomato sauce with fresh basil.',
+    time:25, serves:'4',
+    ingredients:[
+      {n:'potato gnocchi', q:1, u:'lb', cat:'pantry'},
+      {n:'crushed tomatoes', q:28, u:'oz', cat:'pantry'},
+      {n:'garlic', q:4, u:'cloves', cat:'produce'},
+      {n:'fresh basil', q:1, u:'bunch', cat:'produce'},
+      {n:'parmesan', q:3, u:'oz', cat:'dairy'},
+      {n:'olive oil', q:3, u:'tbsp', cat:'pantry'},
+      {n:'red pepper flakes', q:0.5, u:'tsp', cat:'pantry'},
+      {n:'butter', q:1, u:'tbsp', cat:'dairy'},
+      {n:'shallot', q:1, u:'', cat:'produce'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+      {n:'black pepper', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'bacon-saltimbocca', name:'Bacon Saltimbocca Chicken', cat:['date'], emoji:'🥓',
+    desc:'Italian-inspired chicken tenders wrapped in bacon with sage.',
+    time:30, serves:'2–4',
+    ingredients:[
+      {n:'chicken tenders', q:1, u:'lb', cat:'meat'},
+      {n:'bacon', q:8, u:'slices', cat:'meat'},
+      {n:'fresh sage', q:1, u:'bunch', cat:'produce'},
+      {n:'balsamic vinegar', q:2, u:'tbsp', cat:'pantry'},
+      {n:'honey', q:1, u:'tbsp', cat:'pantry'},
+      {n:'dijon mustard', q:1, u:'tbsp', cat:'pantry'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'butter', q:2, u:'tbsp', cat:'dairy'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'sheet-pan-salmon', name:'Sheet Pan Lemon Herb Salmon', cat:['quick','healthy'], emoji:'🐟',
+    desc:'Salmon, asparagus, baby potatoes — all on one pan in 25 minutes.',
+    time:25, serves:'2–4',
+    ingredients:[
+      {n:'salmon fillets', q:1.5, u:'lb', cat:'meat'},
+      {n:'asparagus', q:1, u:'bunch', cat:'produce'},
+      {n:'baby potatoes', q:1, u:'lb', cat:'produce'},
+      {n:'lemon', q:2, u:'', cat:'produce'},
+      {n:'fresh dill', q:1, u:'bunch', cat:'produce'},
+      {n:'garlic', q:3, u:'cloves', cat:'produce'},
+      {n:'olive oil', q:3, u:'tbsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+      {n:'black pepper', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'thai-basil-chicken', name:'Thai Basil Chicken (Pad Krapow)', cat:['quick'], emoji:'🌶️',
+    desc:'Spicy ground chicken with garlic, chili, and a mountain of basil.',
+    time:20, serves:'2–4',
+    ingredients:[
+      {n:'ground chicken', q:1, u:'lb', cat:'meat'},
+      {n:'thai basil', q:1, u:'bunch', cat:'produce'},
+      {n:'garlic', q:5, u:'cloves', cat:'produce'},
+      {n:'thai chilies', q:3, u:'', cat:'produce'},
+      {n:'soy sauce', q:2, u:'tbsp', cat:'pantry'},
+      {n:'oyster sauce', q:2, u:'tbsp', cat:'pantry'},
+      {n:'fish sauce', q:1, u:'tbsp', cat:'pantry'},
+      {n:'sugar', q:1, u:'tsp', cat:'pantry'},
+      {n:'jasmine rice', q:1, u:'cup', cat:'pantry'},
+      {n:'eggs', q:4, u:'', cat:'dairy'},
+      {n:'vegetable oil', q:2, u:'tbsp', cat:'pantry'},
+    ]},
+  { id:'mushroom-risotto', name:'Mushroom Risotto', cat:['vegetarian','date'], emoji:'🍄',
+    desc:'Creamy, earthy risotto with crimini and shiitake. Restaurant-grade.',
+    time:40, serves:'4',
+    ingredients:[
+      {n:'arborio rice', q:1.5, u:'cup', cat:'pantry'},
+      {n:'crimini mushrooms', q:8, u:'oz', cat:'produce'},
+      {n:'shiitake mushrooms', q:4, u:'oz', cat:'produce'},
+      {n:'shallot', q:2, u:'', cat:'produce'},
+      {n:'garlic', q:3, u:'cloves', cat:'produce'},
+      {n:'white wine', q:0.5, u:'cup', cat:'pantry'},
+      {n:'vegetable broth', q:6, u:'cup', cat:'pantry'},
+      {n:'parmesan', q:4, u:'oz', cat:'dairy'},
+      {n:'butter', q:4, u:'tbsp', cat:'dairy'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'fresh thyme', q:1, u:'sprig', cat:'produce'},
+      {n:'fresh parsley', q:1, u:'bunch', cat:'produce'},
+    ]},
+  { id:'tikka-masala', name:'Chicken Tikka Masala', cat:['family'], emoji:'🍛',
+    desc:'Marinated chicken in a creamy, spiced tomato sauce. Better than takeout.',
+    time:45, serves:'4',
+    ingredients:[
+      {n:'boneless chicken thighs', q:1.5, u:'lb', cat:'meat'},
+      {n:'plain yogurt', q:1, u:'cup', cat:'dairy'},
+      {n:'crushed tomatoes', q:14, u:'oz', cat:'pantry'},
+      {n:'heavy cream', q:0.5, u:'cup', cat:'dairy'},
+      {n:'yellow onion', q:1, u:'', cat:'produce'},
+      {n:'garlic', q:5, u:'cloves', cat:'produce'},
+      {n:'fresh ginger', q:1, u:'tbsp', cat:'produce'},
+      {n:'garam masala', q:2, u:'tbsp', cat:'pantry'},
+      {n:'turmeric', q:1, u:'tsp', cat:'pantry'},
+      {n:'cumin', q:1, u:'tsp', cat:'pantry'},
+      {n:'paprika', q:1, u:'tsp', cat:'pantry'},
+      {n:'jasmine rice', q:1, u:'cup', cat:'pantry'},
+      {n:'fresh cilantro', q:1, u:'bunch', cat:'produce'},
+      {n:'butter', q:2, u:'tbsp', cat:'dairy'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'beef-tacos', name:'Beef Tacos with Lime Crema', cat:['family','quick'], emoji:'🌮',
+    desc:'Spiced ground beef, fresh slaw, lime crema. Taco Tuesday, perfected.',
+    time:25, serves:'4',
+    ingredients:[
+      {n:'ground beef', q:1, u:'lb', cat:'meat'},
+      {n:'corn tortillas', q:12, u:'', cat:'pantry'},
+      {n:'sour cream', q:0.5, u:'cup', cat:'dairy'},
+      {n:'lime', q:2, u:'', cat:'produce'},
+      {n:'red cabbage', q:0.5, u:'head', cat:'produce'},
+      {n:'fresh cilantro', q:1, u:'bunch', cat:'produce'},
+      {n:'yellow onion', q:1, u:'', cat:'produce'},
+      {n:'garlic', q:3, u:'cloves', cat:'produce'},
+      {n:'cumin', q:1, u:'tbsp', cat:'pantry'},
+      {n:'chili powder', q:1, u:'tbsp', cat:'pantry'},
+      {n:'cotija cheese', q:4, u:'oz', cat:'dairy'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'med-bowls', name:'Mediterranean Lemon Chicken Bowls', cat:['quick','healthy'], emoji:'🥗',
+    desc:'Marinated chicken, tzatziki, cucumber, tomato, fluffy rice. Bright + filling.',
+    time:30, serves:'4',
+    ingredients:[
+      {n:'boneless chicken thighs', q:1.5, u:'lb', cat:'meat'},
+      {n:'lemon', q:2, u:'', cat:'produce'},
+      {n:'cucumber', q:1, u:'', cat:'produce'},
+      {n:'roma tomatoes', q:2, u:'', cat:'produce'},
+      {n:'red onion', q:0.5, u:'', cat:'produce'},
+      {n:'plain yogurt', q:1, u:'cup', cat:'dairy'},
+      {n:'fresh dill', q:1, u:'bunch', cat:'produce'},
+      {n:'feta cheese', q:4, u:'oz', cat:'dairy'},
+      {n:'kalamata olives', q:0.5, u:'cup', cat:'pantry'},
+      {n:'jasmine rice', q:1, u:'cup', cat:'pantry'},
+      {n:'olive oil', q:3, u:'tbsp', cat:'pantry'},
+      {n:'garlic', q:3, u:'cloves', cat:'produce'},
+      {n:'oregano', q:1, u:'tsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'pesto-burrata', name:'Pesto Pasta with Burrata', cat:['vegetarian','quick','date'], emoji:'🌿',
+    desc:'Fresh pesto, blistered tomatoes, torn burrata. Five ingredients, one moment.',
+    time:20, serves:'2–4',
+    ingredients:[
+      {n:'spaghetti', q:1, u:'lb', cat:'pantry'},
+      {n:'burrata', q:8, u:'oz', cat:'dairy'},
+      {n:'cherry tomatoes', q:1, u:'pint', cat:'produce'},
+      {n:'fresh basil', q:2, u:'bunch', cat:'produce'},
+      {n:'pine nuts', q:0.25, u:'cup', cat:'pantry'},
+      {n:'parmesan', q:3, u:'oz', cat:'dairy'},
+      {n:'garlic', q:2, u:'cloves', cat:'produce'},
+      {n:'olive oil', q:0.5, u:'cup', cat:'pantry'},
+      {n:'lemon', q:1, u:'', cat:'produce'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'bulgogi', name:'Korean Bulgogi Beef', cat:['date','family'], emoji:'🍚',
+    desc:'Sweet-savory marinated beef, sesame, scallions over rice. Crowd favorite.',
+    time:30, serves:'4',
+    ingredients:[
+      {n:'flank steak', q:1.5, u:'lb', cat:'meat'},
+      {n:'soy sauce', q:0.25, u:'cup', cat:'pantry'},
+      {n:'brown sugar', q:3, u:'tbsp', cat:'pantry'},
+      {n:'sesame oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'pear', q:1, u:'', cat:'produce'},
+      {n:'garlic', q:5, u:'cloves', cat:'produce'},
+      {n:'fresh ginger', q:1, u:'tbsp', cat:'produce'},
+      {n:'green onions', q:4, u:'', cat:'produce'},
+      {n:'sesame seeds', q:1, u:'tbsp', cat:'pantry'},
+      {n:'jasmine rice', q:1, u:'cup', cat:'pantry'},
+      {n:'vegetable oil', q:2, u:'tbsp', cat:'pantry'},
+    ]},
+  { id:'shrimp-scampi', name:'Lemon Pepper Shrimp Scampi', cat:['quick','date'], emoji:'🍤',
+    desc:'Garlicky butter-wine shrimp over linguine. 20 minutes, all elegance.',
+    time:20, serves:'2–4',
+    ingredients:[
+      {n:'large shrimp', q:1, u:'lb', cat:'meat'},
+      {n:'linguine', q:0.75, u:'lb', cat:'pantry'},
+      {n:'butter', q:4, u:'tbsp', cat:'dairy'},
+      {n:'garlic', q:6, u:'cloves', cat:'produce'},
+      {n:'white wine', q:0.5, u:'cup', cat:'pantry'},
+      {n:'lemon', q:2, u:'', cat:'produce'},
+      {n:'fresh parsley', q:1, u:'bunch', cat:'produce'},
+      {n:'red pepper flakes', q:0.5, u:'tsp', cat:'pantry'},
+      {n:'olive oil', q:2, u:'tbsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+      {n:'black pepper', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'pulled-chicken', name:'BBQ Pulled Chicken Sliders', cat:['family'], emoji:'🍔',
+    desc:'Slow-cooker BBQ chicken on toasted brioche with quick pickle slaw.',
+    time:35, serves:'4–6',
+    ingredients:[
+      {n:'boneless chicken thighs', q:2, u:'lb', cat:'meat'},
+      {n:'bbq sauce', q:1, u:'cup', cat:'pantry'},
+      {n:'brioche slider buns', q:12, u:'', cat:'pantry'},
+      {n:'green cabbage', q:0.5, u:'head', cat:'produce'},
+      {n:'carrots', q:2, u:'', cat:'produce'},
+      {n:'apple cider vinegar', q:3, u:'tbsp', cat:'pantry'},
+      {n:'mayo', q:0.25, u:'cup', cat:'pantry'},
+      {n:'sugar', q:1, u:'tbsp', cat:'pantry'},
+      {n:'butter', q:2, u:'tbsp', cat:'dairy'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+  { id:'roasted-veg-pasta', name:'Roasted Vegetable Pasta', cat:['vegetarian','quick','healthy'], emoji:'🍆',
+    desc:'Charred eggplant, zucchini, peppers tossed with rigatoni and ricotta.',
+    time:30, serves:'4',
+    ingredients:[
+      {n:'rigatoni', q:1, u:'lb', cat:'pantry'},
+      {n:'eggplant', q:1, u:'', cat:'produce'},
+      {n:'zucchini', q:2, u:'', cat:'produce'},
+      {n:'red bell pepper', q:2, u:'', cat:'produce'},
+      {n:'cherry tomatoes', q:1, u:'pint', cat:'produce'},
+      {n:'ricotta', q:8, u:'oz', cat:'dairy'},
+      {n:'fresh basil', q:1, u:'bunch', cat:'produce'},
+      {n:'garlic', q:4, u:'cloves', cat:'produce'},
+      {n:'olive oil', q:0.25, u:'cup', cat:'pantry'},
+      {n:'parmesan', q:3, u:'oz', cat:'dairy'},
+      {n:'red pepper flakes', q:0.5, u:'tsp', cat:'pantry'},
+      {n:'salt', q:1, u:'tsp', cat:'pantry'},
+    ]},
+];
+
+// Runtime recipe pool — replaced by Spoonacular fetch when API key is set.
+let RECIPES = RECIPES_FALLBACK.slice();
+
+const CAT_LABELS = {
+  date: 'Date Night',
+  family: 'Family',
+  quick: 'Quick',
+  vegetarian: 'Vegetarian',
+  healthy: 'Healthy'
+};
+const CAT_ORDER = ['produce','meat','dairy','pantry','frozen'];
+const CAT_DISPLAY = {
+  produce: 'Produce',
+  meat: 'Meat & seafood',
+  dairy: 'Dairy & eggs',
+  pantry: 'Pantry',
+  frozen: 'Frozen'
+};
+
+const DAYS = [
+  { k:'mon', short:'Mon', n:10 },
+  { k:'tue', short:'Tue', n:11 },
+  { k:'wed', short:'Wed', n:12 },
+  { k:'thu', short:'Thu', n:13 },
+  { k:'fri', short:'Fri', n:14 },
+  { k:'sat', short:'Sat', n:15 },
+  { k:'sun', short:'Sun', n:16 },
+];
+
+/* ---------- App state ---------- */
+const STATE_KEY = 'menuselect.premium.v1';
+const defaultState = {
+  user: null, // {provider, name, email, initial}
+  onboarded: false,
+  prefs: { diet: [], allergies: [], goals: [] },
+  weekPlan: {}, // {dayKey: recipeId}
+  pantry: [], // [name]
+  loved: [], // [recipeId]
+  disliked: [], // [recipeId]
+  hidePantryItems: true,
+  emailTarget: '',
+  filter: 'all',
+};
+
+let state = loadState();
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return JSON.parse(JSON.stringify(defaultState));
+    return Object.assign(JSON.parse(JSON.stringify(defaultState)), JSON.parse(raw));
+  } catch (e) { return JSON.parse(JSON.stringify(defaultState)); }
+}
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+/* ---------- Screen routing ---------- */
+let currentScreen = 'screen-welcome';
+let fromProfile = false;
+let pendingRecipeId = null; // for day-picker
+let pendingDay = null;
+let activeTasteTab = 'loved';
+
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  const next = document.getElementById(id);
+  if (next) next.classList.add('active');
+  currentScreen = id;
+  window.scrollTo({ top: 0 });
+
+  // show / hide bottom nav
+  const showNav = ['screen-home','screen-browse','screen-list','screen-pantry','screen-profile','screen-taste'].includes(id);
+  document.getElementById('bottom-nav').style.display = showNav ? 'flex' : 'none';
+
+  // refresh content per screen
+  if (id === 'screen-home')   renderHome();
+  if (id === 'screen-browse') renderBrowse();
+  if (id === 'screen-list')   renderList();
+  if (id === 'screen-pantry') renderPantry();
+  if (id === 'screen-profile') renderProfile();
+  if (id === 'screen-taste')  renderTaste();
+}
+function setNav(key) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.nav === key));
+}
+function goWelcome() { goScreen('screen-welcome'); document.getElementById('bottom-nav').style.display='none'; }
+
+/* ---------- Setup: API keys + Supabase client ---------- */
+const SETUP_KEY = 'menuselect.setup.v1';
+let setup = (function(){
+  try { return JSON.parse(localStorage.getItem(SETUP_KEY) || '{}'); }
+  catch(e) { return {}; }
+})();
+let sbClient = null;
+
+function hasFullSetup() {
+  return !!(setup.sbUrl && setup.sbKey && setup.spoonKey);
+}
+
+function showSetup() {
+  document.getElementById('setup-sb-url').value = setup.sbUrl || '';
+  document.getElementById('setup-sb-key').value = setup.sbKey || '';
+  document.getElementById('setup-spoon-key').value = setup.spoonKey || '';
+  document.getElementById('setup-overlay').classList.add('open');
+}
+function hideSetup() {
+  document.getElementById('setup-overlay').classList.remove('open');
+}
+function saveSetup() {
+  const sbUrl = document.getElementById('setup-sb-url').value.trim();
+  const sbKey = document.getElementById('setup-sb-key').value.trim();
+  const spoonKey = document.getElementById('setup-spoon-key').value.trim();
+  if (!sbUrl || !sbKey || !spoonKey) {
+    toast('Please fill all three fields');
+    return;
+  }
+  setup = { sbUrl, sbKey, spoonKey };
+  try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup)); } catch(e) {}
+  hideSetup();
+  initSupabase();
+  // Pre-fetch recipes in background
+  loadRecipes().then(() => {
+    if (currentScreen === 'screen-browse') renderBrowse();
+  });
+  toast('Setup complete');
+}
+function skipSetup() {
+  hideSetup();
+  toast('Using mock data — auth and fresh recipes disabled');
+}
+
+function initSupabase() {
+  if (!setup.sbUrl || !setup.sbKey) return;
+  if (!window.supabase) { console.warn('Supabase SDK not loaded yet'); return; }
+  try {
+    sbClient = window.supabase.createClient(setup.sbUrl, setup.sbKey, {
+      auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true },
+    });
+    sbClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        applySupabaseUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        state.user = null;
+        saveState();
+        goWelcome();
+      }
+    });
+  } catch (e) {
+    console.error('Supabase init failed', e);
+    toast('Supabase init failed — check your URL/key');
+  }
+}
+
+function applySupabaseUser(u) {
+  const name = u.user_metadata?.full_name
+            || u.user_metadata?.name
+            || (u.email ? u.email.split('@')[0] : 'Friend');
+  state.user = {
+    id: u.id,
+    email: u.email,
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    initial: ((u.email || 'M')[0]).toUpperCase(),
+    provider: 'email',
+  };
+  saveState();
+  // Hide any "magic-sent" UI on welcome
+  const sent = document.getElementById('magic-sent');
+  const form = document.getElementById('magic-form');
+  if (sent) sent.classList.remove('open');
+  if (form) form.classList.remove('open');
+
+  if (state.onboarded) {
+    setNav('home');
+    goScreen('screen-home');
+  } else {
+    goScreen('screen-onb-diet');
+  }
+}
+
+/* ---------- Auth UI: magic link ---------- */
+function signInComingSoon(provider) {
+  toast(provider + ' sign-in coming soon — use email magic link for now');
+}
+function openMagicForm() {
+  document.getElementById('magic-sent').classList.remove('open');
+  document.getElementById('magic-form').classList.add('open');
+  setTimeout(() => document.getElementById('magic-email').focus(), 50);
+}
+async function sendMagicLink() {
+  if (!sbClient) {
+    toast('Auth not set up — open profile to add your Supabase keys');
+    return;
+  }
+  const email = document.getElementById('magic-email').value.trim();
+  if (!email || !/.+@.+\..+/.test(email)) {
+    toast('Enter a valid email');
+    return;
+  }
+  const btn = document.querySelector('.magic-form .send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  try {
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await sbClient.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo },
+    });
+    if (error) throw error;
+    document.getElementById('magic-sent-email').textContent = email;
+    document.getElementById('magic-form').classList.remove('open');
+    document.getElementById('magic-sent').classList.add('open');
+  } catch (e) {
+    toast('Could not send: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Send magic link'; }
+  }
+}
+async function signOut() {
+  if (!confirm('Sign out? Your saved data will still be here when you come back.')) return;
+  if (sbClient) {
+    try { await sbClient.auth.signOut(); } catch(e) {}
+  }
+  state.user = null;
+  saveState();
+  goWelcome();
+}
+
+/* ---------- Spoonacular: recipes + images ---------- */
+const SPOON_CACHE_KEY = 'menuselect.spoon.cache.v1';
+const SPOON_TTL_MS = 60 * 60 * 1000; // 1 hour per Spoonacular TOS
+
+const AISLE_TO_CAT = {
+  'produce': 'produce',
+  'meat': 'meat',
+  'seafood': 'meat',
+  'refrigerated': 'dairy',
+  'cheese': 'dairy',
+  'milk, eggs, other dairy': 'dairy',
+  'bread': 'pantry',
+  'pasta and rice': 'pantry',
+  'spices and seasonings': 'pantry',
+  'baking': 'pantry',
+  'oil, vinegar, salad dressing': 'pantry',
+  'canned and jarred': 'pantry',
+  'savory snacks': 'pantry',
+  'sweet snacks': 'pantry',
+  'condiments': 'pantry',
+  'ethnic foods': 'pantry',
+  'asian': 'pantry',
+  'beverages': 'pantry',
+  'frozen': 'frozen',
+  'health foods': 'pantry',
+  'gourmet': 'pantry',
+  'nuts': 'pantry',
+  'tea and coffee': 'pantry',
+  'alcoholic beverages': 'pantry',
+};
+
+function aisleToCategory(aisle) {
+  if (!aisle) return 'pantry';
+  const first = String(aisle).split(';')[0].toLowerCase().trim();
+  return AISLE_TO_CAT[first] || 'pantry';
+}
+
+function deriveCategories(s) {
+  const cats = [];
+  if (s.readyInMinutes && s.readyInMinutes <= 30) cats.push('quick');
+  if (s.vegetarian || (s.diets || []).some(d => /vegetarian|vegan/i.test(d))) cats.push('vegetarian');
+  if (s.veryHealthy || (s.healthScore || 0) >= 70) cats.push('healthy');
+  if ((s.servings || 0) >= 4 && (s.readyInMinutes || 0) <= 50) cats.push('family');
+  const cuisines = (s.cuisines || []).join(' ').toLowerCase();
+  if (/italian|french|mediterranean/.test(cuisines) || (s.readyInMinutes || 0) >= 35) cats.push('date');
+  return cats.length ? cats : ['family'];
+}
+
+function stripHtml(str) {
+  if (!str) return '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = str;
+  return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+function shortDesc(html) {
+  let s = stripHtml(html);
+  const m = s.match(/^[^.!?]+[.!?]/);
+  let d = m ? m[0] : s.slice(0, 130);
+  if (d.length > 130) d = d.slice(0, 127).trim() + '…';
+  return d;
+}
+
+function mapSpoonRecipe(s) {
+  const cats = deriveCategories(s);
+  return {
+    id: 's' + s.id,
+    name: s.title,
+    cat: cats,
+    image: s.image,
+    emoji: '🍽️', // fallback
+    desc: shortDesc(s.summary) || `Ready in ${s.readyInMinutes || 30} min · serves ${s.servings || 4}`,
+    time: s.readyInMinutes || 30,
+    serves: s.servings || 4,
+    ingredients: (s.extendedIngredients || []).map(ing => ({
+      n: (ing.name || ing.originalName || 'ingredient').toLowerCase(),
+      q: typeof ing.amount === 'number' ? ing.amount : 1,
+      u: ing.unit || '',
+      cat: aisleToCategory(ing.aisle),
+    })),
+  };
+}
+
+async function loadRecipes(force = false) {
+  if (!setup.spoonKey) return; // stay on fallback
+
+  // Cache check (Spoonacular TOS allows 1-hour cache)
+  if (!force) {
+    try {
+      const raw = localStorage.getItem(SPOON_CACHE_KEY);
+      if (raw) {
+        const { data, ts } = JSON.parse(raw);
+        if (Date.now() - ts < SPOON_TTL_MS && Array.isArray(data) && data.length) {
+          RECIPES = data;
+          return;
+        }
+      }
+    } catch(e) {}
+  }
+
+  const params = new URLSearchParams({
+    apiKey: setup.spoonKey,
+    type: 'main course',
+    number: '24',
+    sort: 'popularity',
+    addRecipeInformation: 'true',
+    fillIngredients: 'true',
+    instructionsRequired: 'false',
+  });
+  if (state.prefs.diet.includes('vegetarian')) params.set('diet', 'vegetarian');
+
+  try {
+    const res = await fetch('https://api.spoonacular.com/recipes/complexSearch?' + params.toString());
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error('Spoonacular ' + res.status + ': ' + txt.slice(0,80));
+    }
+    const json = await res.json();
+    const mapped = (json.results || []).map(mapSpoonRecipe).filter(r => r.ingredients.length > 0);
+    if (mapped.length) {
+      RECIPES = mapped;
+      try {
+        localStorage.setItem(SPOON_CACHE_KEY, JSON.stringify({ data: RECIPES, ts: Date.now() }));
+      } catch(e) {}
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Recipe load failed: ' + (e.message || e));
+  }
+}
+
+/* ---------- Visual helper for dish display ---------- */
+function dishVisualForCard(r) {
+  if (r.image) {
+    return `<img class="dish-img" src="${r.image}" alt="${escapeAttr(r.name)}" loading="lazy" onerror="this.parentElement.querySelector('.dish-fallback').style.display='block';this.style.display='none';" />
+            <div class="emoji dish-fallback" style="display:none;">${r.emoji || '🍽️'}</div>`;
+  }
+  return `<div class="emoji">${r.emoji || '🍽️'}</div>`;
+}
+function dishVisualThumb(r) {
+  if (r.image) return `<img src="${r.image}" alt="${escapeAttr(r.name)}" loading="lazy" />`;
+  return r.emoji || '🍽️';
+}
+function escapeAttr(s) {
+  return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/* ---------- Onboarding ---------- */
+function setupChipCloud(hostId, key) {
+  const host = document.getElementById(hostId);
+  host.querySelectorAll('.chip').forEach(c => {
+    const v = c.dataset.val;
+    if ((state.prefs[key] || []).includes(v)) c.classList.add('selected');
+    c.addEventListener('click', () => {
+      const arr = state.prefs[key] = state.prefs[key] || [];
+      if (arr.includes(v)) {
+        c.classList.remove('selected');
+        state.prefs[key] = arr.filter(x => x !== v);
+      } else {
+        c.classList.add('selected');
+        arr.push(v);
+      }
+      saveState();
+    });
+  });
+}
+function finishOnboarding() {
+  state.onboarded = true;
+  saveState();
+  if (fromProfile) {
+    fromProfile = false;
+    goScreen('screen-profile'); setNav('profile');
+    toast('Preferences updated');
+  } else {
+    setNav('home');
+    goScreen('screen-home');
+    toast('Welcome to Menu Select Premium 🎉');
+  }
+}
+
+/* ---------- Home ---------- */
+function renderHome() {
+  // greeting + avatar
+  const u = state.user;
+  document.getElementById('hi-name').textContent = u ? u.name.split(' ')[0] : 'friend';
+  document.getElementById('hi-av').textContent = u ? u.initial : 'M';
+
+  // count + week summary
+  const planEntries = Object.entries(state.weekPlan); // [dayKey, recipeId]
+  const count = planEntries.length;
+  document.getElementById('dinner-count').textContent = count;
+  document.getElementById('browse-count').textContent = `${count} / 7`;
+  const recipes = planEntries.map(([d,id]) => RECIPES.find(r => r.id === id)).filter(Boolean);
+  const ingItems = aggregateIngredients(recipes);
+  const totalIngredients = ingItems.length;
+  document.getElementById('ingredient-count').textContent = totalIngredients ? `${totalIngredients} unique ingredients` : 'Ready when you are';
+  const savings = count * 32 - count * 6; // est. $32 takeout vs ~$6 home
+  document.getElementById('savings-line').innerHTML = count
+    ? `~ <b>$${savings}</b> saved vs. takeout this week`
+    : `Pick a dinner to see your savings`;
+
+  // dinner list / empty state
+  const host = document.getElementById('dinner-list-host');
+  document.getElementById('clear-link').style.display = count ? '' : 'none';
+  if (count === 0) {
+    host.innerHTML = `
+      <div class="empty-week">
+        <div class="ico">
+          <svg class="icon-svg" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M19 11H5M12 5l-7 6 7 6"/></svg>
+        </div>
+        <h4>No dinners yet</h4>
+        <p>Start with one. Add more as you go — your list dedupes automatically.</p>
+        <button class="btn-primary" onclick="goScreen('screen-browse'); setNav('browse')">
+          Browse recipes
+          <svg class="icon-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  // build rows in day order
+  const ordered = DAYS
+    .filter(d => state.weekPlan[d.k])
+    .map(d => ({ day: d, recipe: RECIPES.find(r => r.id === state.weekPlan[d.k]) }))
+    .filter(x => x.recipe);
+
+  host.innerHTML = '<div class="dinner-list">' + ordered.map(({day, recipe}) => `
+    <div class="dinner-row" data-day="${day.k}">
+      <div class="thumb">${dishVisualThumb(recipe)}</div>
+      <div class="body">
+        <div class="name">${recipe.name}</div>
+        <div class="meta">
+          <span class="day">${day.short.toUpperCase()}</span>
+          <span>${recipe.time} min · serves ${recipe.serves}</span>
+        </div>
+      </div>
+      <button class="remove" onclick="removeFromDay('${day.k}')" aria-label="remove">×</button>
+    </div>
+  `).join('') + '</div>';
+}
+
+function removeFromDay(dayKey) {
+  delete state.weekPlan[dayKey];
+  saveState();
+  renderHome();
+  toast('Removed from week');
+}
+function clearWeek() {
+  if (!confirm('Clear all dinners from this week?')) return;
+  state.weekPlan = {};
+  saveState();
+  renderHome();
+}
+
+/* ---------- Browse ---------- */
+function renderBrowse() {
+  // wire filter pills
+  document.querySelectorAll('#filter-pills .filter-chip').forEach(p => {
+    p.classList.toggle('active', p.dataset.cat === state.filter);
+    p.onclick = () => { state.filter = p.dataset.cat; saveState(); renderBrowse(); };
+  });
+  document.getElementById('browse-count').textContent = `${Object.keys(state.weekPlan).length} / 7`;
+
+  const usingSpoon = setup.spoonKey && RECIPES.length && RECIPES[0].id && String(RECIPES[0].id).startsWith('s');
+  const attrib = document.getElementById('spoon-attrib');
+  if (attrib) attrib.style.display = usingSpoon ? 'block' : 'none';
+
+  // If we have a Spoonacular key but recipes haven't loaded yet, show loader
+  const loadingEl = document.getElementById('recipe-loading');
+  if (setup.spoonKey && !usingSpoon) {
+    if (loadingEl) loadingEl.style.display = 'block';
+    loadRecipes().then(() => renderBrowse());
+  } else if (loadingEl) {
+    loadingEl.style.display = 'none';
+  }
+
+  const grid = document.getElementById('recipe-grid');
+  let recipes = RECIPES.slice();
+  if (state.filter !== 'all') recipes = recipes.filter(r => r.cat.includes(state.filter));
+  // filter by diet
+  if (state.prefs.diet.includes('vegetarian')) recipes = recipes.filter(r => r.cat.includes('vegetarian'));
+  // hide disliked
+  recipes = recipes.filter(r => !state.disliked.includes(r.id));
+
+  const inWeekIds = new Set(Object.values(state.weekPlan));
+
+  grid.innerHTML = recipes.map(r => {
+    const inWeek = inWeekIds.has(r.id);
+    const liked = state.loved.includes(r.id);
+    const primaryCat = r.cat[0] || 'all';
+    return `
+      <div class="recipe-card ${inWeek ? 'in-week' : ''}" data-id="${r.id}">
+        <div class="visual">
+          ${dishVisualForCard(r)}
+          <div class="badge">${(CAT_LABELS[primaryCat] || primaryCat).toUpperCase()}</div>
+          <button class="heart ${liked ? 'liked' : ''}" onclick="toggleLove('${r.id}'); event.stopPropagation();" aria-label="love">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="${liked ? 'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <div class="body">
+          <div class="name">${r.name}</div>
+          <div class="desc">${r.desc}</div>
+          <div class="specs">
+            <span><svg class="icon-sm" viewBox="0 0 24 24" style="width:11px;height:11px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ${r.time} min</span>
+            <span>·</span>
+            <span>Serves ${r.serves}</span>
+            <span>·</span>
+            <span>${r.ingredients.length} ingredients</span>
+          </div>
+        </div>
+        <div class="actions">
+          ${inWeek
+            ? `<button class="add-btn" onclick="removeFromWeekById('${r.id}')">
+                  <svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+                  Added — tap to remove
+               </button>`
+            : `<button class="add-btn" onclick="openDayPicker('${r.id}')">
+                  <svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                  Add to week
+               </button>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Day picker (assign recipe to a day) ---------- */
+function openDayPicker(recipeId) {
+  pendingRecipeId = recipeId;
+  pendingDay = null;
+  const r = RECIPES.find(x => x.id === recipeId);
+  document.getElementById('day-sheet-title').textContent = `Add ${r.name}`;
+  document.getElementById('day-sheet-sub').textContent = 'Which night will you cook this?';
+
+  const grid = document.getElementById('day-grid');
+  grid.innerHTML = DAYS.map(d => {
+    const taken = state.weekPlan[d.k];
+    const sameRecipe = taken === recipeId;
+    return `
+      <button class="day-btn ${taken && !sameRecipe ? 'taken' : ''}" data-day="${d.k}" onclick="pickDay('${d.k}')">
+        <div class="d">${d.short}</div>
+        <div class="n">${d.n}</div>
+      </button>
+    `;
+  }).join('');
+
+  document.getElementById('day-confirm').disabled = true;
+  openSheet('day-sheet');
+}
+function pickDay(k) {
+  // if a different recipe is already on that day, prompt to overwrite
+  const existing = state.weekPlan[k];
+  if (existing && existing !== pendingRecipeId) {
+    if (!confirm(`Replace ${RECIPES.find(r=>r.id===existing).name} on this day?`)) return;
+  }
+  pendingDay = k;
+  document.querySelectorAll('#day-grid .day-btn').forEach(b => b.classList.toggle('selected', b.dataset.day === k));
+  document.getElementById('day-confirm').disabled = false;
+}
+function confirmDay() {
+  if (!pendingDay || !pendingRecipeId) return;
+  state.weekPlan[pendingDay] = pendingRecipeId;
+  saveState();
+  closeSheet();
+  toast(`Added to ${DAYS.find(d=>d.k===pendingDay).short}`);
+  renderBrowse();
+}
+function removeFromWeekById(recipeId) {
+  for (const k in state.weekPlan) {
+    if (state.weekPlan[k] === recipeId) { delete state.weekPlan[k]; }
+  }
+  saveState();
+  renderBrowse();
+  toast('Removed from week');
+}
+function toggleLove(id) {
+  const i = state.loved.indexOf(id);
+  if (i >= 0) state.loved.splice(i,1); else state.loved.push(id);
+  saveState();
+  renderBrowse();
+}
+
+/* ---------- Ingredient aggregation ---------- */
+function normalizeName(s) {
+  return s.toLowerCase().trim()
+    .replace(/^fresh /, '')
+    .replace(/s$/, ''); // crude singularize
+}
+function unitMatch(a, b) { return (a||'').toLowerCase() === (b||'').toLowerCase(); }
+
+function aggregateIngredients(recipes) {
+  // group by name+unit; sum quantities; track which recipes contributed
+  const groups = {};
+  recipes.forEach(r => {
+    r.ingredients.forEach(ing => {
+      const key = `${normalizeName(ing.n)}__${(ing.u||'').toLowerCase()}`;
+      if (!groups[key]) {
+        groups[key] = { name: ing.n, unit: ing.u, cat: ing.cat, qty: 0, recipes: new Set() };
+      }
+      groups[key].qty += Number(ing.q || 0);
+      groups[key].recipes.add(r.id);
+    });
+  });
+  return Object.values(groups).map(g => ({
+    name: g.name, unit: g.unit, cat: g.cat || 'pantry', qty: g.qty,
+    sharedCount: g.recipes.size, recipeIds: Array.from(g.recipes)
+  })).sort((a,b) => a.name.localeCompare(b.name));
+}
+
+/* ---------- Shopping list ---------- */
+function openShoppingList() {
+  if (Object.keys(state.weekPlan).length === 0) {
+    toast('Pick at least one dinner first');
+    setNav('browse');
+    goScreen('screen-browse');
+    return;
+  }
+  setNav('list');
+  goScreen('screen-list');
+}
+
+function renderList() {
+  const recipes = Object.values(state.weekPlan).map(id => RECIPES.find(r=>r.id===id)).filter(Boolean);
+  const items = aggregateIngredients(recipes);
+
+  const visibleItems = state.hidePantryItems
+    ? items.filter(i => !state.pantry.some(p => normalizeName(p) === normalizeName(i.name)))
+    : items;
+
+  // header counts
+  document.getElementById('list-meal-count').textContent = `${recipes.length} dinner${recipes.length===1?'':'s'}`;
+  document.getElementById('list-item-count').textContent = `${visibleItems.length} item${visibleItems.length===1?'':'s'}`;
+
+  // savings header
+  const saving = recipes.length * (32 - 6);
+  document.getElementById('savings-amount').textContent = `$${saving}`;
+
+  // pantry toggle UI
+  const tog = document.getElementById('pantry-toggle');
+  tog.classList.toggle('on', state.hidePantryItems);
+  document.getElementById('pantry-toggle-sub').textContent =
+    state.pantry.length
+      ? `${state.pantry.length} pantry item${state.pantry.length===1?'':'s'} ${state.hidePantryItems?'excluded':'included'}`
+      : 'Add items in your pantry tab to skip them';
+
+  // grouped categories
+  const byCat = {};
+  visibleItems.forEach(it => {
+    (byCat[it.cat] = byCat[it.cat] || []).push(it);
+  });
+
+  const host = document.getElementById('list-categories');
+  if (visibleItems.length === 0) {
+    host.innerHTML = `
+      <div class="empty-week" style="margin-top:18px;">
+        <div class="ico">
+          <svg class="icon-svg" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.5 0 4.76 1.02 6.4 2.66"/></svg>
+        </div>
+        <h4>You're all set</h4>
+        <p>Every ingredient for this week is already in your pantry.</p>
+      </div>`;
+    return;
+  }
+
+  host.innerHTML = CAT_ORDER
+    .filter(c => byCat[c] && byCat[c].length)
+    .map(c => `
+      <div class="list-cat">
+        <h4>${CAT_DISPLAY[c]} · ${byCat[c].length}</h4>
+        ${byCat[c].map((it, idx) => `
+          <div class="list-item" onclick="this.classList.toggle('checked')">
+            <div class="check"></div>
+            <div class="info">
+              <div class="name">${it.name}</div>
+              <div class="qty">${formatQty(it.qty)} ${it.unit || ''}${it.sharedCount > 1 ? ' · used in ' + it.sharedCount + ' meals' : ''}</div>
+            </div>
+            ${it.sharedCount > 1 ? `<span class="shared">×${it.sharedCount}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+}
+function formatQty(n) {
+  if (n === Math.floor(n)) return String(n);
+  return (Math.round(n * 100) / 100).toString();
+}
+function togglePantryFilter() {
+  state.hidePantryItems = !state.hidePantryItems;
+  saveState();
+  renderList();
+}
+
+/* ---------- Send to Instacart / Email ---------- */
+function sendToInstacart() { openSheet('ic-sheet'); }
+function confirmInstacart() {
+  const recipes = Object.values(state.weekPlan).map(id => RECIPES.find(r=>r.id===id)).filter(Boolean);
+  let items = aggregateIngredients(recipes);
+  if (state.hidePantryItems) {
+    items = items.filter(i => !state.pantry.some(p => normalizeName(p) === normalizeName(i.name)));
+  }
+  // Deeplink: search-style URL pre-filled with first ~8 items
+  const query = items.slice(0, 8).map(i => i.name).join(',');
+  const url = `https://www.instacart.com/store/s?k=${encodeURIComponent(query)}`;
+  closeSheet();
+  toast('Opening Instacart...');
+  setTimeout(() => window.open(url, '_blank', 'noopener'), 200);
+}
+function emailList() {
+  document.getElementById('email-target').value = state.emailTarget || (state.user && state.user.email) || '';
+  openSheet('email-sheet');
+}
+function confirmEmail() {
+  const target = document.getElementById('email-target').value.trim();
+  if (!target) return toast('Add an email first');
+  state.emailTarget = target;
+  saveState();
+  const recipes = Object.values(state.weekPlan).map(id => RECIPES.find(r=>r.id===id)).filter(Boolean);
+  let items = aggregateIngredients(recipes);
+  if (state.hidePantryItems) {
+    items = items.filter(i => !state.pantry.some(p => normalizeName(p) === normalizeName(i.name)));
+  }
+  // group by category
+  const byCat = {};
+  items.forEach(it => { (byCat[it.cat] = byCat[it.cat] || []).push(it); });
+  const sections = CAT_ORDER.filter(c => byCat[c]).map(c =>
+    `${CAT_DISPLAY[c].toUpperCase()}\n` +
+    byCat[c].map(i => `  • ${i.name} — ${formatQty(i.qty)} ${i.unit||''}`.trim()).join('\n')
+  ).join('\n\n');
+  const dinners = recipes.map(r => `  - ${r.name}`).join('\n');
+  const subject = `Menu Select — Your shopping list (${recipes.length} dinners)`;
+  const body =
+`This week's menu, built by Menu Select.
+
+DINNERS:
+${dinners}
+
+—
+
+SHOPPING LIST:
+
+${sections}
+
+—
+Sent from Menu Select Premium · menu-selection.com`;
+  const href = `mailto:${encodeURIComponent(target)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  closeSheet();
+  toast('Opening your mail app...');
+  setTimeout(() => { window.location.href = href; }, 200);
+}
+
+/* ---------- Pantry ---------- */
+const PANTRY_DEFAULTS = ['olive oil','salt','black pepper','garlic'];
+function renderPantry() {
+  const host = document.getElementById('pantry-cats');
+  if (state.pantry.length === 0) {
+    host.innerHTML = `
+      <div style="padding:0 0;font-size:13px;color:var(--text-dim);">
+        <div style="margin-top:8px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:var(--text-dim);">Suggested staples</div>
+        <div class="chip-cloud" style="margin-top:14px;">
+          ${PANTRY_DEFAULTS.map(p => `<button class="chip" onclick="quickAddPantry('${p}')">${p}</button>`).join('')}
+        </div>
+      </div>`;
+  } else {
+    host.innerHTML = `
+      <div style="margin-top:8px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:var(--text-dim);">In your pantry · ${state.pantry.length}</div>
+      <div class="chip-cloud" style="margin-top:14px;">
+        ${state.pantry.map(p => `
+          <button class="chip selected" onclick="removePantry('${p.replace(/'/g, "\\'")}')">
+            ${p}
+            <span class="x">×</span>
+          </button>
+        `).join('')}
+      </div>
+      ${state.pantry.length < PANTRY_DEFAULTS.length ? `
+        <div style="margin-top:24px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:var(--text-dim);">Quick add</div>
+        <div class="chip-cloud" style="margin-top:14px;">
+          ${PANTRY_DEFAULTS.filter(p => !state.pantry.includes(p)).map(p => `<button class="chip" onclick="quickAddPantry('${p}')">${p}</button>`).join('')}
+        </div>` : ''}
+    `;
+  }
+}
+function addPantry() {
+  const input = document.getElementById('pantry-input');
+  const v = input.value.trim();
+  if (!v) return;
+  if (!state.pantry.includes(v)) state.pantry.push(v);
+  input.value = '';
+  saveState();
+  renderPantry();
+  toast(`Added ${v} to pantry`);
+}
+function quickAddPantry(name) {
+  if (!state.pantry.includes(name)) state.pantry.push(name);
+  saveState();
+  renderPantry();
+}
+function removePantry(name) {
+  state.pantry = state.pantry.filter(p => p !== name);
+  saveState();
+  renderPantry();
+}
+
+/* ---------- Profile ---------- */
+function renderProfile() {
+  const u = state.user;
+  document.getElementById('prof-av').textContent = u ? u.initial : 'M';
+  document.getElementById('prof-name').textContent = u ? u.name : 'Friend';
+  document.getElementById('prof-email').textContent = u ? u.email : 'you@example.com';
+
+  document.getElementById('taste-summary').textContent =
+    `${state.loved.length} loved · ${state.disliked.length} disliked`;
+
+  const dietBits = [
+    ...(state.prefs.diet || []),
+    ...(state.prefs.allergies || []).map(a => `no ${a}`)
+  ];
+  document.getElementById('diet-summary').textContent =
+    dietBits.length ? dietBits.slice(0,3).join(', ') + (dietBits.length>3?'…':'') : 'No restrictions';
+
+  document.getElementById('pantry-summary').textContent =
+    state.pantry.length ? `${state.pantry.length} item${state.pantry.length===1?'':'s'} tracked` : 'Empty';
+
+  // savings (rough estimate)
+  const recipes = Object.values(state.weekPlan).map(id => RECIPES.find(r=>r.id===id)).filter(Boolean);
+  const wkSavings = recipes.length * 26;
+  document.getElementById('lifetime-savings-sub').textContent =
+    recipes.length ? `~$${wkSavings} this week` : 'Plan dinners to start saving';
+  document.getElementById('sheet-savings-week').textContent = `$${wkSavings}`;
+  document.getElementById('sheet-savings-detail').textContent =
+    recipes.length ? `${recipes.length} dinner${recipes.length===1?'':'s'} × ~$26 per delivery saved` : 'No dinners planned yet';
+}
+
+/* ---------- Taste tab ---------- */
+function renderTaste() {
+  document.querySelectorAll('#taste-tabs .taste-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.tab === activeTasteTab);
+    tab.onclick = () => { activeTasteTab = tab.dataset.tab; renderTaste(); };
+  });
+  const ids = activeTasteTab === 'loved' ? state.loved : state.disliked;
+  const recipes = ids.map(id => RECIPES.find(r => r.id === id)).filter(Boolean);
+  const host = document.getElementById('taste-list');
+  if (!recipes.length) {
+    host.innerHTML = `
+      <div class="empty-week" style="margin-top:8px;">
+        <div class="ico">${activeTasteTab === 'loved' ? '❤️' : '👎'}</div>
+        <h4>Nothing here yet</h4>
+        <p>${activeTasteTab === 'loved'
+          ? 'Tap the heart on any recipe to save it here.'
+          : 'Recipes you mark as disliked will appear here so we can avoid them.'}</p>
+      </div>`;
+    return;
+  }
+  host.innerHTML = '<div class="dinner-list">' + recipes.map(r => `
+    <div class="dinner-row">
+      <div class="thumb">${dishVisualThumb(r)}</div>
+      <div class="body">
+        <div class="name">${r.name}</div>
+        <div class="meta">${r.time} min · serves ${r.serves}</div>
+      </div>
+      <button class="remove" onclick="removeTaste('${r.id}')">×</button>
+    </div>`).join('') + '</div>';
+}
+function removeTaste(id) {
+  if (activeTasteTab === 'loved') state.loved = state.loved.filter(x => x !== id);
+  else state.disliked = state.disliked.filter(x => x !== id);
+  saveState();
+  renderTaste();
+}
+
+/* ---------- Sheets ---------- */
+function openSheet(id) {
+  document.querySelectorAll('.sheet').forEach(s => s.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.getElementById('sheet-back').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(e) {
+  if (e && e.target.closest('.sheet')) return;
+  document.getElementById('sheet-back').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ---------- Toast ---------- */
+function toast(msg) {
+  const host = document.getElementById('toast-host');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<svg class="icon-sm ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>${msg}`;
+  host.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ---------- Init ---------- */
+async function init() {
+  // wire onboarding chips
+  setupChipCloud('diet-chips', 'diet');
+  setupChipCloud('allergy-chips', 'allergies');
+  setupChipCloud('goal-chips', 'goals');
+
+  // First-run: prompt for API keys
+  if (!hasFullSetup()) {
+    showSetup();
+    // still allow navigating welcome behind the modal
+  }
+
+  // Initialize Supabase client (if keys present)
+  initSupabase();
+
+  // Try to restore an existing Supabase session synchronously
+  if (sbClient) {
+    try {
+      const { data } = await sbClient.auth.getSession();
+      if (data?.session?.user) {
+        applySupabaseUser(data.session.user);
+      } else if (state.user) {
+        // We have a stale local user but no Supabase session — clear it
+        state.user = null;
+        saveState();
+        goWelcome();
+      } else {
+        goWelcome();
+      }
+    } catch (e) {
+      console.error(e);
+      goWelcome();
+    }
+  } else {
+    // No Supabase yet (skipped setup) — fall back to legacy local-only behavior
+    if (state.user) {
+      if (state.onboarded) { setNav('home'); goScreen('screen-home'); }
+      else                 { goScreen('screen-onb-diet'); }
+    } else {
+      goWelcome();
+    }
+  }
+
+  // Pre-fetch recipes in background if Spoonacular key is set
+  if (setup.spoonKey) {
+    loadRecipes().then(() => {
+      if (currentScreen === 'screen-browse') renderBrowse();
+      if (currentScreen === 'screen-home')   renderHome();
+    });
+  }
+}
+init();
+</script>
+</body>
+</html>
