@@ -2088,6 +2088,8 @@ function loadState() {
 }
 function saveState() {
   try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+  // Also push to Supabase (debounced inside saveCloudState).
+  if (typeof saveCloudState === 'function') saveCloudState();
 }
 
 /* ---------- Screen routing ---------- */
@@ -2232,7 +2234,7 @@ function initSupabase() {
   }
 }
 
-function applySupabaseUser(u) {
+async function applySupabaseUser(u) {
   const name = u.user_metadata?.full_name
             || u.user_metadata?.name
             || (u.email ? u.email.split('@')[0] : 'Friend');
@@ -2250,12 +2252,80 @@ function applySupabaseUser(u) {
   if (sent) sent.classList.remove('open');
   if (form) form.classList.remove('open');
 
+  // Pull this user's saved data from Supabase (cross-device sync).
+  await loadCloudState(u.id);
+
   if (state.onboarded) {
     setNav('home');
     goScreen('screen-home');
   } else {
     goScreen('screen-onb-diet');
   }
+}
+
+/* ---------- Cloud sync (Supabase user_state table) ---------- */
+let cloudReady = false;
+let cloudSaveTimer = null;
+const SYNC_KEYS = ['onboarded','prefs','weekPlan','pantry','loved','disliked','hidePantryItems','emailTarget','filter'];
+
+async function loadCloudState(userId) {
+  cloudReady = false;
+  if (!sbClient || !userId) { cloudReady = true; return; }
+  try {
+    const { data, error } = await sbClient
+      .from('user_state')
+      .select('state')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) {
+      // Table missing? show a one-time hint, but keep going.
+      if (/relation .* does not exist|user_state/i.test(error.message || '')) {
+        console.warn('Cloud sync table not found — run the SQL migration in Supabase. Falling back to local-only.');
+        toast('Cloud sync table missing — see chat for the SQL fix');
+      } else {
+        console.error('Cloud load error', error);
+      }
+      cloudReady = true;
+      return;
+    }
+    if (data?.state && Object.keys(data.state).length) {
+      // Cloud has data — overwrite the synced fields with what we got
+      SYNC_KEYS.forEach(k => {
+        if (k in data.state) state[k] = data.state[k];
+      });
+      saveState();
+    } else {
+      // No cloud row yet — push current local state up so this user has a row
+      cloudReady = true;
+      saveCloudState();
+      return;
+    }
+  } catch (e) {
+    console.error('Cloud load failed', e);
+  }
+  cloudReady = true;
+}
+
+function saveCloudState() {
+  if (!cloudReady || !sbClient || !state.user?.id) return;
+  // Debounce so rapid changes only fire one network call.
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(async () => {
+    const payload = {};
+    SYNC_KEYS.forEach(k => { if (k in state) payload[k] = state[k]; });
+    try {
+      const { error } = await sbClient
+        .from('user_state')
+        .upsert({
+          user_id: state.user.id,
+          state: payload,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
+      if (error) console.error('Cloud save error', error);
+    } catch (e) {
+      console.error('Cloud save failed', e);
+    }
+  }, 600);
 }
 
 /* ---------- Auth UI: magic link ---------- */
