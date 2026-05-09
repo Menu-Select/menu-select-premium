@@ -2121,16 +2121,48 @@ function setNav(key) {
 }
 function goWelcome() { goScreen('screen-welcome'); document.getElementById('bottom-nav').style.display='none'; }
 
+/* ====================================================================
+   🔑  YOUR API KEYS  🔑
+   ====================================================================
+   Replace the placeholders below, save the file, push to GitHub.
+   Vercel auto-redeploys in ~30 seconds.
+
+   Supabase: dashboard → Project Settings → API
+     • Project URL  →  sbUrl
+     • anon public  →  sbKey
+
+   Spoonacular: spoonacular.com/food-api/console → API key  →  spoonKey
+   ==================================================================== */
+const APP_CONFIG = {
+  sbUrl:    'https://hxhjuiylzljagzyvpyiw.supabase.co',
+  sbKey:    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4aGp1aXlsemxqYWd6eXZweWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTkxMDYsImV4cCI6MjA5Mzg5NTEwNn0.Qu7FDP90tXPLXU0iYsTVKty-S95KTUlOGo2_ITAz-rk',
+  spoonKey: 'c187f0c988ec4efcb3a365cec9b900ab',
+};
+/* ==================================================================== */
+
 /* ---------- Setup: API keys + Supabase client ---------- */
 const SETUP_KEY = 'menuselect.setup.v1';
 let setup = (function(){
-  try { return JSON.parse(localStorage.getItem(SETUP_KEY) || '{}'); }
-  catch(e) { return {}; }
+  // localStorage values (from setup modal) override APP_CONFIG, so power users
+  // can still try different keys without editing the file.
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(SETUP_KEY) || '{}'); }
+  catch(e) {}
+  return {
+    sbUrl:    saved.sbUrl    || APP_CONFIG.sbUrl,
+    sbKey:    saved.sbKey    || APP_CONFIG.sbKey,
+    spoonKey: saved.spoonKey || APP_CONFIG.spoonKey,
+  };
 })();
 let sbClient = null;
 
+function isPlaceholder(v) {
+  return !v || /^PASTE_/.test(v);
+}
 function hasFullSetup() {
-  return !!(setup.sbUrl && setup.sbKey && setup.spoonKey);
+  return !isPlaceholder(setup.sbUrl)
+      && !isPlaceholder(setup.sbKey)
+      && !isPlaceholder(setup.spoonKey);
 }
 
 function showSetup() {
