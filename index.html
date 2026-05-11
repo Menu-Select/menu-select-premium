@@ -294,6 +294,25 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
 .pantry-chip:hover{background:rgba(244,228,193,.18);}
 .pantry-chip .x{opacity:.6;font-size:14px;}
 
+/* Stock list with date tracking */
+.stock-banner{padding:14px 18px;border-radius:12px;background:rgba(244,228,193,.05);border:1px solid rgba(244,228,193,.15);margin-bottom:18px;display:flex;align-items:flex-start;gap:12px;}
+.stock-banner .ico{flex-shrink:0;width:34px;height:34px;border-radius:10px;background:rgba(244,228,193,.12);border:1px solid rgba(244,228,193,.25);color:var(--cream);display:flex;align-items:center;justify-content:center;}
+.stock-banner .ico svg{width:16px;height:16px;stroke-width:1.8;}
+.stock-banner .copy{flex:1;}
+.stock-banner h4{font-family:'DM Serif Display',serif;font-style:italic;font-size:14px;color:#fff;margin-bottom:4px;}
+.stock-banner p{font-family:'DM Serif Display',serif;font-style:italic;font-size:12px;color:var(--dim);line-height:1.5;}
+.stock-list{display:flex;flex-direction:column;gap:8px;}
+.stock-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--surf-border);border-radius:12px;transition:border-color .15s;}
+.stock-item:hover{border-color:rgba(244,228,193,.25);}
+.stock-dot{flex-shrink:0;width:10px;height:10px;border-radius:50%;}
+.stock-body{flex:1;min-width:0;}
+.stock-name{font-family:'Raleway',sans-serif;font-size:14px;font-weight:500;color:#fff;text-transform:capitalize;line-height:1.2;}
+.stock-sub{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:5px;}
+.stock-remove{width:30px;height:30px;border-radius:50%;background:transparent;border:1px solid var(--surf-border);color:var(--dim);font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.stock-remove:hover{background:rgba(255,77,141,.1);border-color:rgba(255,77,141,.3);color:#ff6b9d;}
+.stock-empty{padding:36px 20px;text-align:center;border:1px dashed var(--surf-border);border-radius:14px;}
+.stock-empty p{font-family:'DM Serif Display',serif;font-style:italic;font-size:13px;color:var(--dim);line-height:1.55;max-width:36ch;margin:0 auto;}
+
 /* ===== Toast ===== */
 .toast-host{position:fixed;bottom:120px;left:0;right:0;z-index:300;display:flex;justify-content:center;pointer-events:none;}
 .toast{background:rgba(20,20,28,.95);backdrop-filter:blur(12px);border:1px solid var(--surf-border);color:#fff;padding:12px 20px;border-radius:12px;font-family:'Raleway',sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:0 12px 32px rgba(0,0,0,.5);animation:toastIn .25s ease,toastOut .3s ease 2.4s forwards;}
@@ -358,6 +377,9 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
     </div>
     <div class="ws-pill" onclick="showScreen(5)">
       <i data-lucide="package-2"></i>Pantry <span class="badge" id="wsPantry">0</span>
+    </div>
+    <div class="ws-pill" onclick="showScreen(6)">
+      <i data-lucide="snowflake"></i>Freezer <span class="badge" id="wsFreezer">0</span>
     </div>
   </div>
   <div class="filters" id="filterBar"></div>
@@ -445,7 +467,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
      <p class="savings-sub" id="weekSavingsSub"></p>
     </div>
     <p class="sec-title">Combined Grocery List · <span id="weekIngCount" style="color:#fff;font-weight:600;"></span></p>
-    <p class="ing-hint" style="padding:0 0 10px;font-style:italic;font-size:12px;color:var(--dim);">Shared ingredients are deduplicated. Pantry items skipped automatically.</p>
+    <p class="ing-hint" style="padding:0 0 10px;font-style:italic;font-size:12px;color:var(--dim);">Check each item as you put it in your cart. Proteins auto-stock to your freezer, pantry staples to your pantry — next week's list gets smarter.</p>
     <div class="cart-list" id="weekCartList"></div>
    </div>
    <div>
@@ -468,14 +490,48 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
   <button class="back-btn" onclick="showScreen(1)"><i data-lucide="arrow-left"></i>Back</button>
   <div class="hdr" style="padding-top:16px;text-align:left;padding-left:clamp(16px,4vw,60px);padding-right:clamp(16px,4vw,60px);">
     <h1 style="font-size:clamp(28px,5vw,44px);">Your <em class="grad-text">Pantry</em></h1>
-    <p style="text-align:left;">Stuff you usually have. We'll skip these on your list.</p>
+    <p style="text-align:left;">Shelf-stable staples — oils, spices, rice, sauces. Skipped on your weekly list automatically.</p>
   </div>
   <div class="pantry-wrap">
+    <div class="stock-banner">
+      <div class="ico"><i data-lucide="sparkles"></i></div>
+      <div class="copy">
+        <h4>Auto-stocked from your shopping</h4>
+        <p>When you check a pantry item on your weekly list, we add it here. Manually add staples below.</p>
+      </div>
+    </div>
     <div class="pantry-input-row">
-      <input class="pantry-input" id="pantryInput" placeholder="Add an item — e.g., olive oil" onkeydown="if(event.key==='Enter')addPantryItem()">
+      <input class="pantry-input" id="pantryInput" placeholder="Add a pantry staple — e.g., olive oil" onkeydown="if(event.key==='Enter')addPantryItem()">
       <button class="pantry-add grad-bg" onclick="addPantryItem()">+</button>
     </div>
-    <div class="pantry-list" id="pantryList"></div>
+    <div id="pantryList"></div>
+  </div>
+ </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 6 — Freezer
+============================================================ -->
+<div class="screen" id="screen6">
+ <div class="page-wrap" style="width:100%">
+  <button class="back-btn" onclick="showScreen(1)"><i data-lucide="arrow-left"></i>Back</button>
+  <div class="hdr" style="padding-top:16px;text-align:left;padding-left:clamp(16px,4vw,60px);padding-right:clamp(16px,4vw,60px);">
+    <h1 style="font-size:clamp(28px,5vw,44px);">Your <em class="grad-text">Freezer</em></h1>
+    <p style="text-align:left;">Long-shelf protein and frozen ingredients. Buy in bulk at Costco — we'll track what you have.</p>
+  </div>
+  <div class="pantry-wrap">
+    <div class="stock-banner">
+      <div class="ico"><i data-lucide="snowflake"></i></div>
+      <div class="copy">
+        <h4>Bulk-buy economy</h4>
+        <p>Proteins you check off your weekly list auto-stock here. Add Costco bulk purchases (chicken, ground beef, shrimp) directly.</p>
+      </div>
+    </div>
+    <div class="pantry-input-row">
+      <input class="pantry-input" id="freezerInput" placeholder="Add a freezer item — e.g., chicken breasts" onkeydown="if(event.key==='Enter')addFreezerItem()">
+      <button class="pantry-add grad-bg" onclick="addFreezerItem()">+</button>
+    </div>
+    <div id="freezerList"></div>
   </div>
  </div>
 </div>
@@ -670,7 +726,51 @@ function recipeSearchUrl(r){return `https://www.google.com/search?q=${encodeURIC
 
 /* ───────────────────────── App State ───────────────────────── */
 const STATE_KEY='menuselect.premium.v9';
-const defaultState={user:null,loved:[],disliked:[],weekPlan:{},pantry:[],weekChecked:[]};
+const defaultState={user:null,loved:[],disliked:[],weekPlan:{},pantry:[],freezer:[],weekChecked:[]};
+
+/* ───────────────────────── Stock helpers (pantry & freezer learning) ───────────────────────── */
+// Route a checked-off shopping item to pantry or freezer based on category
+function categoryToStock(cat){
+  if(cat==='protein')return 'freezer'; // chicken, beef, shrimp etc → freezer
+  if(cat==='pantry')return 'pantry';   // oils, rice, sauces, spices → pantry
+  return null;                          // produce & dairy: too perishable to auto-stock
+}
+function addToStock(where,name){
+  const list=state[where]=state[where]||[];
+  const key=name.toLowerCase().trim();
+  if(list.some(it=>((it&&it.name)||it||'').toLowerCase().trim()===key))return false;
+  list.push({name,addedAt:Date.now()});
+  return true;
+}
+function removeFromStock(where,name){
+  const list=state[where]||[];
+  const key=name.toLowerCase().trim();
+  state[where]=list.filter(it=>((it&&it.name)||it||'').toLowerCase().trim()!==key);
+}
+function stockKey(it){return ((it&&it.name)||it||'').toLowerCase().trim();}
+function stockName(it){return (it&&it.name)||it||'';}
+function stockAge(it){return (it&&it.addedAt)?it.addedAt:Date.now();}
+function ageDisplay(ts){
+  const days=Math.floor((Date.now()-ts)/86400000);
+  if(days<1)return 'Added today';
+  if(days===1)return 'Added yesterday';
+  if(days<7)return `Added ${days} days ago`;
+  if(days<30){const w=Math.floor(days/7);return `Added ${w} week${w===1?'':'s'} ago`;}
+  if(days<365){const m=Math.floor(days/30);return `Added ${m} month${m===1?'':'s'} ago`;}
+  return `Added over a year ago`;
+}
+function ageColor(ts,isFrozen){
+  const days=Math.floor((Date.now()-ts)/86400000);
+  // Frozen items keep ~3x longer than pantry
+  if(isFrozen){
+    if(days<90)return '#7ed957';
+    if(days<180)return '#ffd166';
+    return '#ff6b6b';
+  }
+  if(days<30)return '#7ed957';
+  if(days<120)return '#ffd166';
+  return '#ff6b6b';
+}
 
 /* ───────────────────────── Ingredient categorization ───────────────────────── */
 const CAT_LABELS={produce:'Produce',protein:'Protein',dairy:'Dairy & Eggs',pantry:'Pantry'};
@@ -688,7 +788,13 @@ function categorize(name){
   return 'produce';
 }
 let state=loadState();
-function loadState(){try{const r=localStorage.getItem(STATE_KEY);return r?Object.assign({...defaultState},JSON.parse(r)):{...defaultState};}catch(e){return {...defaultState};}}
+function loadState(){try{const r=localStorage.getItem(STATE_KEY);if(!r)return {...defaultState};const p=Object.assign({...defaultState},JSON.parse(r));
+  // Migrate old format: pantry was string[], now {name,addedAt}[]
+  if(Array.isArray(p.pantry))p.pantry=p.pantry.map(x=>typeof x==='string'?{name:x,addedAt:Date.now()}:x);
+  if(!Array.isArray(p.freezer))p.freezer=[];
+  else p.freezer=p.freezer.map(x=>typeof x==='string'?{name:x,addedAt:Date.now()}:x);
+  return p;
+}catch(e){return {...defaultState};}}
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(state));}catch(e){}saveCloudDebounced();}
 
 let sb=null;
@@ -738,7 +844,8 @@ async function loadCloudState(){
       state.loved=data.data.loved||[];
       state.disliked=data.data.disliked||[];
       state.weekPlan=data.data.weekPlan||{};
-      state.pantry=data.data.pantry||[];
+      state.pantry=(data.data.pantry||[]).map(x=>typeof x==='string'?{name:x,addedAt:Date.now()}:x);
+      state.freezer=(data.data.freezer||[]).map(x=>typeof x==='string'?{name:x,addedAt:Date.now()}:x);
       state.weekChecked=data.data.weekChecked||[];
     }
   }catch(e){console.warn('Cloud load error',e);}
@@ -752,7 +859,7 @@ function saveCloudDebounced(){
 async function saveCloudNow(){
   if(!sb||!state.user)return;
   try{
-    const payload={user_id:state.user.id,data:{loved:state.loved,disliked:state.disliked,weekPlan:state.weekPlan,pantry:state.pantry,weekChecked:state.weekChecked},updated_at:new Date().toISOString()};
+    const payload={user_id:state.user.id,data:{loved:state.loved,disliked:state.disliked,weekPlan:state.weekPlan,pantry:state.pantry,freezer:state.freezer,weekChecked:state.weekChecked},updated_at:new Date().toISOString()};
     await sb.from('user_state').upsert(payload,{onConflict:'user_id'});
   }catch(e){console.warn('Cloud save error',e);}
 }
@@ -791,7 +898,8 @@ function renderUserBar(){
           <div><span class="em">Hi, friend</span><div class="sub">${state.user.email}</div></div>
         </div>
         <div class="um-row" onclick="hideUserMenu();showScreen(4)"><i data-lucide="calendar-heart"></i>My Week<span class="badge" id="umWeekBadge">${Object.keys(state.weekPlan).length}</span></div>
-        <div class="um-row" onclick="hideUserMenu();showScreen(5)"><i data-lucide="package-2"></i>Pantry<span class="badge">${state.pantry.length}</span></div>
+        <div class="um-row" onclick="hideUserMenu();showScreen(5)"><i data-lucide="package-2"></i>Pantry<span class="badge">${(state.pantry||[]).length}</span></div>
+        <div class="um-row" onclick="hideUserMenu();showScreen(6)"><i data-lucide="snowflake"></i>Freezer<span class="badge">${(state.freezer||[]).length}</span></div>
         <div class="um-row" onclick="hideUserMenu();signOut()"><i data-lucide="log-out"></i>Sign out</div>
       </div>`;
   }else{
@@ -804,9 +912,10 @@ function hideUserMenu(){const m=document.getElementById('userMenu');if(m)m.class
 document.addEventListener('click',hideUserMenu);
 
 function renderBadges(){
-  const wb=document.getElementById('wsBadge'),wp=document.getElementById('wsPantry');
+  const wb=document.getElementById('wsBadge'),wp=document.getElementById('wsPantry'),wf=document.getElementById('wsFreezer');
   if(wb)wb.textContent=Object.keys(state.weekPlan).length;
-  if(wp)wp.textContent=state.pantry.length;
+  if(wp)wp.textContent=(state.pantry||[]).length;
+  if(wf)wf.textContent=(state.freezer||[]).length;
   const umw=document.getElementById('umWeekBadge');
   if(umw)umw.textContent=Object.keys(state.weekPlan).length;
 }
@@ -818,6 +927,7 @@ function showScreen(n){
   window.scrollTo(0,0);
   if(n===4)renderWeek();
   if(n===5)renderPantry();
+  if(n===6)renderFreezer();
   renderIcons();
 }
 function renderIcons(){if(window.lucide)lucide.createIcons();}
@@ -1095,14 +1205,22 @@ function aggregateWeekIngredients(){
       map[key].recipes.add(r.id);
     });
   });
-  // pantry filter
-  const pantrySet=new Set(state.pantry.map(p=>p.toLowerCase().trim()));
-  return Object.values(map).map(g=>({
-    name:g.name,
-    sharedCount:g.recipes.size,
-    inPantry:pantrySet.has(g.name.toLowerCase().trim()),
-    category:categorize(g.name)
-  })).sort((a,b)=>b.sharedCount-a.sharedCount||a.name.localeCompare(b.name));
+  // Filter against BOTH pantry and freezer (long-shelf items the user already has)
+  const pantrySet=new Set((state.pantry||[]).map(p=>stockKey(p)));
+  const freezerSet=new Set((state.freezer||[]).map(f=>stockKey(f)));
+  return Object.values(map).map(g=>{
+    const k=g.name.toLowerCase().trim();
+    const inPantry=pantrySet.has(k);
+    const inFreezer=freezerSet.has(k);
+    return {
+      name:g.name,
+      sharedCount:g.recipes.size,
+      inPantry,inFreezer,
+      inStock:inPantry||inFreezer,
+      stockLocation:inPantry?'pantry':inFreezer?'freezer':null,
+      category:categorize(g.name)
+    };
+  }).sort((a,b)=>b.sharedCount-a.sharedCount||a.name.localeCompare(b.name));
 }
 function renderWeek(){
   const recipes=Object.values(state.weekPlan).map(id=>RECIPES.find(r=>r.id===id)).filter(Boolean);
@@ -1134,14 +1252,16 @@ function renderWeek(){
 
   // Combined dedup categorized checklist
   const items=aggregateWeekIngredients();
-  const visible=items.filter(i=>!i.inPantry);
-  const totalSavings=recipes.reduce((sum,r)=>sum+calcSavings(r).saved,0);
   const checkedSet=new Set(state.weekChecked||[]);
+  // Show items NOT in stock, plus items just-checked this session (so they don't vanish on tap)
+  const visible=items.filter(i=>!i.inStock||checkedSet.has(i.name.toLowerCase().trim()));
+  const totalSavings=recipes.reduce((sum,r)=>sum+calcSavings(r).saved,0);
   const checkedCount=visible.filter(i=>checkedSet.has(i.name.toLowerCase().trim())).length;
+  const stockedCount=items.length-visible.length;
 
   document.getElementById('weekSavings').textContent=`~$${totalSavings}`;
-  document.getElementById('weekSavingsSub').textContent=`${recipes.length} dinners · ${visible.length} unique ingredients · ${items.length-visible.length} from pantry`;
-  document.getElementById('weekIngCount').innerHTML=`${visible.length} items${items.length>visible.length?` <span style="color:var(--dim);font-weight:400;">(${items.length-visible.length} pantry items hidden)</span>`:''}<span class="shop-progress">${checkedCount}/${visible.length} in cart</span>`;
+  document.getElementById('weekSavingsSub').textContent=`${recipes.length} dinners · ${visible.length} unique to buy · ${stockedCount} already stocked`;
+  document.getElementById('weekIngCount').innerHTML=`${visible.length} items${stockedCount>0?` <span style="color:var(--dim);font-weight:400;">(${stockedCount} hidden — already in pantry/freezer)</span>`:''}<span class="shop-progress">${checkedCount}/${visible.length} in cart</span>`;
 
   // Group by category
   const byCat={produce:[],protein:[],dairy:[],pantry:[]};
@@ -1180,9 +1300,23 @@ function renderWeek(){
 function toggleWeekItem(key){
   state.weekChecked=state.weekChecked||[];
   const i=state.weekChecked.indexOf(key);
-  if(i>=0)state.weekChecked.splice(i,1);
-  else state.weekChecked.push(key);
+  if(i>=0){
+    state.weekChecked.splice(i,1);
+    // Don't auto-remove from stock on uncheck — that's a separate intent
+  }else{
+    state.weekChecked.push(key);
+    // Auto-stock: route to pantry or freezer based on ingredient category
+    const items=aggregateWeekIngredients();
+    const item=items.find(it=>it.name.toLowerCase().trim()===key);
+    if(item){
+      const dest=categoryToStock(item.category);
+      if(dest&&addToStock(dest,item.name)){
+        toast(`Added ${item.name} to ${dest}`);
+      }
+    }
+  }
   saveState();
+  renderBadges();
   renderWeek();
 }
 function resetCheckedItems(){
@@ -1245,29 +1379,55 @@ function sendWeekEmail(){
   window.location.href=`mailto:?subject=${subject}&body=${body}`;
 }
 
-/* ───────────────────────── Pantry ───────────────────────── */
-function renderPantry(){
-  const list=document.getElementById('pantryList');
-  if(!state.pantry.length){
-    list.innerHTML=`<p style="font-family:'DM Serif Display',serif;font-style:italic;font-size:14px;color:var(--dim);margin-top:8px;">Add staples like olive oil, garlic, salt — we'll skip them on your weekly list automatically.</p>`;
+/* ───────────────────────── Pantry & Freezer (stock with dates) ───────────────────────── */
+function renderStockList(where,hostId,emptyMsg){
+  const list=state[where]||[];
+  const host=document.getElementById(hostId);
+  if(!list.length){
+    host.innerHTML=`<div class="stock-empty"><p>${emptyMsg}</p></div>`;
     return;
   }
-  list.innerHTML=state.pantry.map(p=>{
-    const safe=p.replace(/'/g,"\\'");
-    return `<button class="pantry-chip" onclick="removePantryItem('${safe}')">${p}<span class="x">×</span></button>`;
-  }).join('');
+  // Newest first
+  const sorted=[...list].sort((a,b)=>stockAge(b)-stockAge(a));
+  const isFrozen=where==='freezer';
+  host.innerHTML=`<div class="stock-list">${sorted.map(it=>{
+    const name=stockName(it),ts=stockAge(it);
+    const color=ageColor(ts,isFrozen);
+    const safe=name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="stock-item">
+      <div class="stock-dot" style="background:${color}"></div>
+      <div class="stock-body">
+        <div class="stock-name">${name}</div>
+        <div class="stock-sub">${ageDisplay(ts)}</div>
+      </div>
+      <button class="stock-remove" onclick="removeStockItem('${where}','${safe}')" aria-label="remove">×</button>
+    </div>`;
+  }).join('')}</div>`;
+}
+function renderPantry(){
+  renderStockList('pantry','pantryList','Empty for now. Add staples manually, or check items off your weekly shopping list to auto-stock here.');
+}
+function renderFreezer(){
+  renderStockList('freezer','freezerList','Empty for now. Add bulk purchases from Costco, or check proteins off your weekly shopping list to auto-stock here.');
 }
 function addPantryItem(){
   const input=document.getElementById('pantryInput');
-  const v=input.value.trim();
-  if(!v)return;
-  if(!state.pantry.includes(v))state.pantry.push(v);
+  const v=input.value.trim();if(!v)return;
+  if(addToStock('pantry',v))toast(`Added ${v} to pantry`);
   input.value='';
   saveState();renderBadges();renderPantry();
 }
-function removePantryItem(name){
-  state.pantry=state.pantry.filter(p=>p!==name);
-  saveState();renderBadges();renderPantry();
+function addFreezerItem(){
+  const input=document.getElementById('freezerInput');
+  const v=input.value.trim();if(!v)return;
+  if(addToStock('freezer',v))toast(`Added ${v} to freezer`);
+  input.value='';
+  saveState();renderBadges();renderFreezer();
+}
+function removeStockItem(where,name){
+  removeFromStock(where,name);
+  saveState();renderBadges();
+  if(where==='pantry')renderPantry();else renderFreezer();
 }
 
 /* ───────────────────────── Toast ───────────────────────── */
