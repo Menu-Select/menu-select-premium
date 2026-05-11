@@ -257,6 +257,30 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
 .week-row .day-tag{padding:3px 8px;border-radius:6px;background:rgba(244,228,193,.12);border:1px solid rgba(244,228,193,.3);color:var(--cream);}
 .week-row .remove{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid var(--surf-border);color:var(--dim);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .week-row .remove:hover{background:rgba(255,77,141,.15);color:#ff6b9d;}
+.week-row .open-tap{flex:1;min-width:0;cursor:pointer;transition:opacity .15s;}
+.week-row .open-tap:hover{opacity:.7;}
+
+/* ===== Categorized checklist (My Week + cart) ===== */
+.cat-section{margin-bottom:22px;}
+.cat-head{display:flex;align-items:center;gap:10px;margin:18px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--surf-border);}
+.cat-head .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cat-head h4{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--cream);}
+.cat-head .cat-count{margin-left:auto;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);}
+.check-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:#fafaf7;border-radius:10px;margin-bottom:6px;cursor:pointer;transition:all .15s;box-shadow:0 2px 10px rgba(0,0,0,.3);}
+.check-row:hover{transform:translateX(2px);}
+.check-row.done{opacity:.45;background:rgba(255,255,255,.04);box-shadow:none;}
+.check-row .cb{width:22px;height:22px;border-radius:6px;border:2px solid rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:transparent;}
+.check-row.done .cb{border-color:rgba(255,255,255,.2);background:rgba(244,228,193,.85);}
+.check-row .cb svg{width:14px;height:14px;color:#1a1308;stroke-width:3;display:none;}
+.check-row.done .cb svg{display:block;}
+.check-row .item-name{font-family:'Raleway',sans-serif;font-size:14px;font-weight:500;text-transform:capitalize;color:#1a1a1a;flex:1;}
+.check-row.done .item-name{text-decoration:line-through;color:rgba(255,255,255,.45);}
+.check-row .shared{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9c8555;background:rgba(244,228,193,.4);padding:3px 6px;border-radius:5px;flex-shrink:0;}
+.check-row.done .shared{background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);}
+.shop-reset{margin-top:14px;padding:10px 16px;background:transparent;border:1px solid var(--surf-border);border-radius:8px;color:var(--dim);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.shop-reset:hover{color:var(--cream);border-color:rgba(244,228,193,.3);}
+.shop-reset svg{width:11px;height:11px;}
+.shop-progress{display:inline-flex;align-items:center;gap:8px;margin-left:auto;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cream);}
 
 /* ===== Pantry (screen 5) ===== */
 .pantry-wrap{padding:0 clamp(16px,4vw,60px) 80px;}
@@ -646,7 +670,23 @@ function recipeSearchUrl(r){return `https://www.google.com/search?q=${encodeURIC
 
 /* ───────────────────────── App State ───────────────────────── */
 const STATE_KEY='menuselect.premium.v9';
-const defaultState={user:null,loved:[],disliked:[],weekPlan:{},pantry:[]};
+const defaultState={user:null,loved:[],disliked:[],weekPlan:{},pantry:[],weekChecked:[]};
+
+/* ───────────────────────── Ingredient categorization ───────────────────────── */
+const CAT_LABELS={produce:'Produce',protein:'Protein',dairy:'Dairy & Eggs',pantry:'Pantry'};
+const CAT_ORDER=['produce','protein','dairy','pantry'];
+const CAT_DOTS={produce:'#7ed957',protein:'#ff6b6b',dairy:'#ffd166',pantry:'#9b87f5'};
+function categorize(name){
+  const n=(name||'').toLowerCase().trim();
+  // Pantry first — canned, dry, bottled, oils, sauces, spices (some contain protein/produce words)
+  if(/\b(crushed tomatoes|diced tomatoes|tomato sauce|tomato paste|enchilada sauce|marinara|hot sauce|bbq sauce|soy sauce|fish sauce|oyster sauce|hoisin|sriracha|teriyaki|salsa|curry paste|red curry paste|coconut milk|olive oil|sesame oil|vegetable oil|peanut oil|rice|jasmine rice|brown rice|noodles|rice noodles|wide rice noodles|lo mein|pasta|spaghetti|linguine|fettuccine|penne|ziti|rigatoni|macaroni|orzo|tortilla|tortillas|corn tortillas|breadcrumbs|panko|flour|cornstarch|sugar|brown sugar|honey|salt|black pepper|peppercorn|cumin|paprika|chili powder|garlic powder|onion powder|cajun|garam masala|turmeric|cinnamon|star anise|peanuts|sesame seeds|pine nuts|raisins|olives|kalamata|capers|broth|stock|chicken broth|beef broth|vegetable broth|wine|red wine|white wine|vodka|brandy|vinegar|balsamic|apple cider vinegar|mustard|dijon|mayo|mayonnaise|ketchup|peanut butter|tahini|beans|black beans|white beans|kidney beans|lentils|chickpeas|chips|tortilla chips|crackers|buns|brioche|baguettes|bread|seasoning|italian seasoning|taco seasoning|spices|pepper flakes|red pepper flakes|dried chil|edamame|farro|quinoa|gnocchi|tortellini|lasagna noodles|nutritional yeast|baking powder|worcestershire|caesar dressing|ranch|tzatziki|old bay|cayenne)\b/.test(n)) return 'pantry';
+  // Protein / meat / seafood
+  if(/\b(chicken|chicken breast|chicken thigh|chicken tender|chicken wing|beef|ground beef|beef chuck|beef tenderloin|chuck roast|pork|ground pork|pork chop|lamb|sausage|italian sausage|bacon|salmon|shrimp|tuna|fish|turkey|ground turkey|tofu|steak|ribeye|tenderloin|sirloin|flank|filet|veal)\b/.test(n)) return 'protein';
+  // Dairy & eggs
+  if(/\b(cheese|milk|cream|heavy cream|sour cream|butter|yogurt|mozzarella|parmesan|ricotta|feta|cheddar|provolone|cotija|burrata|pecorino|egg|eggs)\b/.test(n)) return 'dairy';
+  // Default to produce (fresh things: garlic, onion, tomato, lemon, basil, ginger, etc)
+  return 'produce';
+}
 let state=loadState();
 function loadState(){try{const r=localStorage.getItem(STATE_KEY);return r?Object.assign({...defaultState},JSON.parse(r)):{...defaultState};}catch(e){return {...defaultState};}}
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(state));}catch(e){}saveCloudDebounced();}
@@ -699,6 +739,7 @@ async function loadCloudState(){
       state.disliked=data.data.disliked||[];
       state.weekPlan=data.data.weekPlan||{};
       state.pantry=data.data.pantry||[];
+      state.weekChecked=data.data.weekChecked||[];
     }
   }catch(e){console.warn('Cloud load error',e);}
 }
@@ -711,7 +752,7 @@ function saveCloudDebounced(){
 async function saveCloudNow(){
   if(!sb||!state.user)return;
   try{
-    const payload={user_id:state.user.id,data:{loved:state.loved,disliked:state.disliked,weekPlan:state.weekPlan,pantry:state.pantry},updated_at:new Date().toISOString()};
+    const payload={user_id:state.user.id,data:{loved:state.loved,disliked:state.disliked,weekPlan:state.weekPlan,pantry:state.pantry,weekChecked:state.weekChecked},updated_at:new Date().toISOString()};
     await sb.from('user_state').upsert(payload,{onConflict:'user_id'});
   }catch(e){console.warn('Cloud save error',e);}
 }
@@ -957,9 +998,15 @@ function pickDay(k){
   });
   document.getElementById('dpConfirm').disabled=false;
 }
+function pruneChecked(){
+  const items=aggregateWeekIngredients().filter(i=>!i.inPantry);
+  const valid=new Set(items.map(i=>i.name.toLowerCase().trim()));
+  state.weekChecked=(state.weekChecked||[]).filter(k=>valid.has(k));
+}
 function confirmDayPick(){
   if(!pendingDay||!pendingRecipeForWeek)return;
   state.weekPlan[pendingDay]=pendingRecipeForWeek;
+  pruneChecked();
   saveState();
   closeModal();
   toast(`Added to ${pendingDay.charAt(0).toUpperCase()+pendingDay.slice(1)}`);
@@ -1005,8 +1052,31 @@ function buildCart(){
 function sendEmail(){
   const items=sel.ingredients.filter(i=>!removed.has(i));
   const s=calcSavings(sel);
+  // Group by category
+  const byCat={produce:[],protein:[],dairy:[],pantry:[]};
+  items.forEach(i=>{const c=categorize(i);byCat[c]=byCat[c]||[];byCat[c].push(i);});
+  const sections=CAT_ORDER.filter(c=>byCat[c]&&byCat[c].length).map(c=>{
+    const header=`${CAT_LABELS[c].toUpperCase()}  (${byCat[c].length})`;
+    return `${header}\n${'-'.repeat(header.length)}\n${byCat[c].map(i=>`  ☐  ${i}`).join('\n')}`;
+  }).join('\n\n');
   const subject=encodeURIComponent(`Menu Select: ${sel.title} — Grocery List`);
-  const body=encodeURIComponent([`MENU SELECT — DINNER PLAN`,``,`Dinner: ${sel.title}`,`Cook time: ${sel.time}  |  Serves: ${sel.serves}`,``,`Full Recipe: ${recipeSearchUrl(sel)}`,``,`────────────────────────`,`GROCERY LIST (${items.length} items)`,`────────────────────────`,...items.map(i=>`  • ${i}`),``,`Est. savings vs. DoorDash: ~$${s.saved}`,``,`Powered by Menu Select Premium`].join('\n'));
+  const body=encodeURIComponent([
+    `MENU SELECT — DINNER PLAN`,
+    ``,
+    `Dinner: ${sel.title}`,
+    `Cook time: ${sel.time}  |  Serves: ${sel.serves}`,
+    `Recipe: ${recipeSearchUrl(sel)}`,
+    ``,
+    `═══════════════════════════════════`,
+    `SHOPPING LIST — check off as you shop`,
+    `═══════════════════════════════════`,
+    ``,
+    sections,
+    ``,
+    `───`,
+    `Est. savings vs. DoorDash: ~$${s.saved}`,
+    `Powered by Menu Select · menu-selection.com`
+  ].join('\n'));
   window.location.href=`mailto:?subject=${subject}&body=${body}`;
 }
 function sendToInstacart(){
@@ -1030,13 +1100,14 @@ function aggregateWeekIngredients(){
   return Object.values(map).map(g=>({
     name:g.name,
     sharedCount:g.recipes.size,
-    inPantry:pantrySet.has(g.name.toLowerCase().trim())
+    inPantry:pantrySet.has(g.name.toLowerCase().trim()),
+    category:categorize(g.name)
   })).sort((a,b)=>b.sharedCount-a.sharedCount||a.name.localeCompare(b.name));
 }
 function renderWeek(){
   const recipes=Object.values(state.weekPlan).map(id=>RECIPES.find(r=>r.id===id)).filter(Boolean);
   const summary=document.getElementById('weekSummary');
-  summary.textContent=recipes.length?`${recipes.length} dinner${recipes.length===1?'':'s'} this week · combined shopping list below`:'Pick your dinners on the browse page';
+  summary.textContent=recipes.length?`${recipes.length} dinner${recipes.length===1?'':'s'} this week · tap any dinner to view recipe`:'Pick your dinners on the browse page';
   const wcw=document.getElementById('weekCartWrap');
   const wc=document.getElementById('weekContent');
   if(!recipes.length){
@@ -1049,34 +1120,79 @@ function renderWeek(){
     </div>`;
     renderIcons();return;
   }
-  // Show planned dinners
+  // Planned dinners — clickable rows
   const ordered=DAYS.filter(d=>state.weekPlan[d.k]).map(d=>({day:d,recipe:RECIPES.find(r=>r.id===state.weekPlan[d.k])})).filter(x=>x.recipe);
   wc.innerHTML=`<div class="week-list">${ordered.map(({day,recipe})=>`
     <div class="week-row">
       <div class="thumb" style="background-image:url('${resolveImg(recipe)}'),${recipe.fb};background-color:#222;"></div>
-      <div class="body">
+      <div class="open-tap" onclick="openRecipe(${recipe.id})">
         <div class="name">${recipe.title}</div>
-        <div class="sub"><span class="day-tag">${day.short.toUpperCase()}</span><span>${recipe.time} · serves ${recipe.serves}</span></div>
+        <div class="sub"><span class="day-tag">${day.short.toUpperCase()}</span><span>${recipe.time} · serves ${recipe.serves}</span><span style="color:var(--cream);">View recipe →</span></div>
       </div>
       <button class="remove" onclick="removeFromWeek('${day.k}')" aria-label="remove">×</button>
     </div>`).join('')}</div>`;
 
-  // Combined dedup list
+  // Combined dedup categorized checklist
   const items=aggregateWeekIngredients();
   const visible=items.filter(i=>!i.inPantry);
   const totalSavings=recipes.reduce((sum,r)=>sum+calcSavings(r).saved,0);
+  const checkedSet=new Set(state.weekChecked||[]);
+  const checkedCount=visible.filter(i=>checkedSet.has(i.name.toLowerCase().trim())).length;
+
   document.getElementById('weekSavings').textContent=`~$${totalSavings}`;
   document.getElementById('weekSavingsSub').textContent=`${recipes.length} dinners · ${visible.length} unique ingredients · ${items.length-visible.length} from pantry`;
-  document.getElementById('weekIngCount').textContent=`${visible.length} items${items.length>visible.length?` (${items.length-visible.length} pantry items hidden)`:''}`;
-  document.getElementById('weekCartList').innerHTML=visible.map(it=>{
-    const sharedTag=it.sharedCount>1?`<span class="cart-item-shared">×${it.sharedCount} meals</span>`:'';
-    return `<div class="cart-item"><span class="cart-item-name">${it.name}</span>${sharedTag}<div class="cart-dot grad-bg"></div></div>`;
-  }).join('');
+  document.getElementById('weekIngCount').innerHTML=`${visible.length} items${items.length>visible.length?` <span style="color:var(--dim);font-weight:400;">(${items.length-visible.length} pantry items hidden)</span>`:''}<span class="shop-progress">${checkedCount}/${visible.length} in cart</span>`;
+
+  // Group by category
+  const byCat={produce:[],protein:[],dairy:[],pantry:[]};
+  visible.forEach(it=>{byCat[it.category]=byCat[it.category]||[];byCat[it.category].push(it);});
+
+  let html='';
+  CAT_ORDER.forEach(cat=>{
+    const list=byCat[cat]||[];
+    if(!list.length)return;
+    html+=`<div class="cat-section">
+      <div class="cat-head">
+        <div class="cat-dot" style="background:${CAT_DOTS[cat]}"></div>
+        <h4>${CAT_LABELS[cat]}</h4>
+        <span class="cat-count">${list.length} item${list.length===1?'':'s'}</span>
+      </div>
+      ${list.map(it=>{
+        const key=it.name.toLowerCase().trim();
+        const done=checkedSet.has(key);
+        const safe=key.replace(/'/g,"\\'");
+        const sharedTag=it.sharedCount>1?`<span class="shared">×${it.sharedCount} meals</span>`:'';
+        return `<div class="check-row ${done?'done':''}" onclick="toggleWeekItem('${safe}')">
+          <div class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <span class="item-name">${it.name}</span>
+          ${sharedTag}
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  if(checkedCount>0){
+    html+=`<button class="shop-reset" onclick="resetCheckedItems()"><i data-lucide="rotate-ccw"></i>Reset checklist</button>`;
+  }
+  document.getElementById('weekCartList').innerHTML=html;
   wcw.style.display='';
   renderIcons();
 }
+function toggleWeekItem(key){
+  state.weekChecked=state.weekChecked||[];
+  const i=state.weekChecked.indexOf(key);
+  if(i>=0)state.weekChecked.splice(i,1);
+  else state.weekChecked.push(key);
+  saveState();
+  renderWeek();
+}
+function resetCheckedItems(){
+  state.weekChecked=[];
+  saveState();
+  renderWeek();
+  toast('Checklist reset');
+}
 function removeFromWeek(dayKey){
-  delete state.weekPlan[dayKey];saveState();renderBadges();renderWeek();toast('Removed from week');
+  delete state.weekPlan[dayKey];pruneChecked();saveState();renderBadges();renderWeek();toast('Removed from week');
 }
 function sendWeekToInstacart(){
   const items=aggregateWeekIngredients().filter(i=>!i.inPantry).map(i=>i.name);
@@ -1086,10 +1202,46 @@ function sendWeekToInstacart(){
 function sendWeekEmail(){
   const recipes=Object.values(state.weekPlan).map(id=>RECIPES.find(r=>r.id===id)).filter(Boolean);
   const items=aggregateWeekIngredients().filter(i=>!i.inPantry);
-  const dinners=recipes.map(r=>`  - ${r.title} (${r.time})`).join('\n');
-  const ings=items.map(i=>`  • ${i.name}${i.sharedCount>1?` (×${i.sharedCount} meals)`:''}`).join('\n');
+  const checkedSet=new Set(state.weekChecked||[]);
+
+  // Dinners block with recipe links
+  const dinners=recipes.map(r=>`  • ${r.title}  (${r.time}, serves ${r.serves})\n    ${recipeSearchUrl(r)}`).join('\n\n');
+
+  // Group items by category, with checkboxes
+  const byCat={produce:[],protein:[],dairy:[],pantry:[]};
+  items.forEach(it=>{byCat[it.category]=byCat[it.category]||[];byCat[it.category].push(it);});
+  const sections=CAT_ORDER.filter(c=>byCat[c]&&byCat[c].length).map(c=>{
+    const list=byCat[c];
+    const header=`${CAT_LABELS[c].toUpperCase()}  (${list.length})`;
+    const rows=list.map(it=>{
+      const key=it.name.toLowerCase().trim();
+      const box=checkedSet.has(key)?'☑':'☐';
+      const shared=it.sharedCount>1?`  (×${it.sharedCount} meals)`:'';
+      return `  ${box}  ${it.name}${shared}`;
+    }).join('\n');
+    return `${header}\n${'-'.repeat(header.length)}\n${rows}`;
+  }).join('\n\n');
+
   const subject=encodeURIComponent(`Menu Select: This week's shopping list (${recipes.length} dinners)`);
-  const body=encodeURIComponent([`MENU SELECT — WEEKLY SHOPPING LIST`,``,`DINNERS:`,dinners,``,`────────────────────────`,`SHOPPING LIST (${items.length} unique items)`,`────────────────────────`,ings,``,`Powered by Menu Select Premium`].join('\n'));
+  const body=encodeURIComponent([
+    `MENU SELECT — WEEKLY SHOPPING LIST`,
+    `${recipes.length} dinners · ${items.length} unique ingredients`,
+    ``,
+    `═══════════════════════════════════`,
+    `DINNERS THIS WEEK`,
+    `═══════════════════════════════════`,
+    ``,
+    dinners,
+    ``,
+    `═══════════════════════════════════`,
+    `SHOPPING LIST — check off as you shop`,
+    `═══════════════════════════════════`,
+    ``,
+    sections,
+    ``,
+    `───`,
+    `Powered by Menu Select Premium · menu-selection.com`
+  ].join('\n'));
   window.location.href=`mailto:?subject=${subject}&body=${body}`;
 }
 
