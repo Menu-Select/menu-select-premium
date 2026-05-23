@@ -355,23 +355,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
    </div>
    <button class="guest-link" onclick="enterAsGuest()">Continue without sign-in →</button>
 
-async function signInWithGoogle(){
-  if(!sb){
-    const msg=document.getElementById('authMsg');
-    msg.className='auth-msg error';
-    msg.textContent='Sign-in not configured yet. Use "Continue without sign-in" to try the prototype.';
-    return;
-  }
-  const {error}=await sb.auth.signInWithOAuth({
-    provider:'google',
-    options:{redirectTo:window.location.origin+window.location.pathname}
-  });
-  if(error){
-    const msg=document.getElementById('authMsg');
-    msg.className='auth-msg error';
-    msg.textContent='Google sign-in failed: '+error.message;
-  }
-}
+
    
    <div class="welcome-bullets">
      <div class="wb-row"><span class="check"><i data-lucide="check"></i></span><span><b>Plan a full week</b> — 3-7 dinners at once, one trip to the store.</span></div>
@@ -887,7 +871,25 @@ async function saveCloudNow(){
 }
 
 /* ───────────────────────── Auth UI ───────────────────────── */
-async function sendMagicLink(){
+
+  async function signInWithGoogle(){
+  if(!sb){
+    const msg=document.getElementById('authMsg');
+    msg.className='auth-msg error';
+    msg.textContent='Sign-in not configured yet. Use "Continue without sign-in" to try the prototype.';
+    return;
+  }
+  const {error}=await sb.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:window.location.origin+window.location.pathname}
+  });
+  if(error){
+    const msg=document.getElementById('authMsg');
+    msg.className='auth-msg error';
+    msg.textContent='Google sign-in failed: '+error.message;
+  }
+}  
+  async function sendMagicLink(){
   const email=document.getElementById('authEmail').value.trim();
   const msg=document.getElementById('authMsg');
   const btn=document.getElementById('authBtn');
