@@ -778,9 +778,9 @@ function applyGuestUser(){state.user=null;saveState();renderUserBar();}
 async function loadCloudState(){
   if(!sb||!state.user)return;
   try{
-    const{data,error}=await sb.from('user_state').select('data').eq('user_id',state.user.id).maybeSingle();
-    if(error||!data?.data)return;
-    const d=data.data;
+    const{data,error}=await sb.from('user_state').select('state').eq('user_id',state.user.id).maybeSingle();
+    if(error||!data?.state)return;
+    const d=data.state;
     state.loved=d.loved||[];
     state.weekPlan=d.weekPlan||{};
     state.pantry=(d.pantry||[]).map(x=>typeof x==='string'?{name:x,addedAt:Date.now()}:x);
@@ -797,7 +797,7 @@ function saveCloudDebounced(){
     try{
       await sb.from('user_state').upsert({
         user_id:state.user.id,
-        data:{loved:state.loved,weekPlan:state.weekPlan,pantry:state.pantry,freezer:state.freezer,weekChecked:state.weekChecked,isPro:state.isPro},
+        state:{loved:state.loved,weekPlan:state.weekPlan,pantry:state.pantry,freezer:state.freezer,weekChecked:state.weekChecked,isPro:state.isPro},
         updated_at:new Date().toISOString()
       },{onConflict:'user_id'});
     }catch(e){console.warn('Cloud save error',e);}
