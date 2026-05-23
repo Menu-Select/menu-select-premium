@@ -720,12 +720,15 @@ function startStripeCheckout(){
 }
 
 /* ─── Pro gate ─── */
-function isPro(){return state.isPro;}
+// For now: any signed-in user gets full access.
+// Paywall only shows to guests (not logged in).
+function isPro(){return state.isPro||!!state.user;}
 function requirePro(action){
   // Check URL param for successful Stripe redirect
   if(new URLSearchParams(window.location.search).get('subscribed')==='true'){
     state.isPro=true;saveState();
     window.history.replaceState({},'',window.location.pathname);
+    toast('🎉 Welcome to Menu Select Premium!');
   }
   if(isPro()){action();return;}
   openPaywall(action);
