@@ -722,7 +722,7 @@ function startStripeCheckout(){
 /* ─── Pro gate ─── */
 // For now: any signed-in user gets full access.
 // Paywall only shows to guests (not logged in).
-function isPro(){return state.isPro||!!state.user;}
+function isPro(){return state.isPro||!!state.user||localStorage.getItem('ms_signedin')==='1';}
 function requirePro(action){
   // Check URL param for successful Stripe redirect
   if(new URLSearchParams(window.location.search).get('subscribed')==='true'){
@@ -767,6 +767,7 @@ function initSupabase(){
   }catch(e){console.error('Supabase init failed',e);return false;}
 }
 async function applyAuthedUser(u){
+  localStorage.setItem('ms_signedin','1');
   state.user={id:u.id,email:u.email,initial:(u.email||'?')[0].toUpperCase()};
   await loadCloudState();
   saveState();
@@ -827,6 +828,7 @@ async function sendMagicLinkFromModal(){
 }
 async function signOut(){
   if(sb)await sb.auth.signOut();
+  localStorage.removeItem('ms_signedin');
   state={...defaultState};saveState();renderUserBar();renderBadges();toast('Signed out');
 }
 function openSigninModal(){document.getElementById('signinModalBack').classList.add('open');renderIcons();}
