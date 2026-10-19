@@ -213,6 +213,8 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
 .check-row.done .cb svg{display:block;}
 .check-row .item-name{font-family:'Raleway',sans-serif;font-size:14px;font-weight:500;text-transform:capitalize;color:#1a1a1a;flex:1;}
 .check-row.done .item-name{text-decoration:line-through;color:rgba(255,255,255,.45);}
+.opt-tag{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9c8555;background:rgba(244,228,193,.4);padding:3px 6px;border-radius:5px;flex-shrink:0;margin-left:auto;margin-right:8px;white-space:nowrap;}
+.privacy-link{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);text-decoration:none;}
 .check-row .shared{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9c8555;background:rgba(244,228,193,.4);padding:3px 6px;border-radius:5px;flex-shrink:0;}
 .shop-reset{margin-top:14px;padding:10px 16px;background:transparent;border:1px solid var(--surf-border);border-radius:8px;color:var(--dim);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
 .shop-reset:hover{color:var(--cream);border-color:rgba(244,228,193,.3);}
@@ -335,7 +337,8 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
   <div class="hdr">
     <div class="logo-row-c"><div class="logo-dot grad-bg"></div><span class="logo-text">Menu Select</span></div>
     <h1>What's for <em class="grad-text">dinner this week?</em></h1>
-    <p>Browse dinners. Pick your favorites. We'll build the grocery list.</p>
+    <p>Your companion to the Menu Select program and monthly plan. Pick your own dinners for the week, and we'll build the grocery list.</p>
+    <p style="margin-top:-14px;"><a href="https://menuselect.substack.com" target="_blank" rel="noopener" style="color:var(--cream);font-family:'Montserrat',sans-serif;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;">Get the monthly plan →</a></p>
   </div>
   <div class="week-strip">
     <div class="ws-pill" onclick="requirePro(()=>showScreen(4))">
@@ -369,7 +372,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
     <div class="ing-list" id="ingList"></div>
     <div class="bottom-cta">
      <div class="cta-stack">
-      <button class="cta-primary grad-bg" onclick="requirePro(addToWeekFromDetail)"><i data-lucide="calendar-plus"></i>Add to My Week</button>
+      <button class="cta-primary grad-bg" id="addToWeekBtn" onclick="requirePro(addToWeekFromDetail)"><i data-lucide="calendar-plus"></i>Add to My Week</button>
       <button class="outline-btn" onclick="requirePro(()=>{buildCart();showScreen(3);})"><i data-lucide="shopping-cart"></i>Shop tonight's dinner</button>
      </div>
     </div>
@@ -387,11 +390,6 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
   <div class="cart-wrap">
    <div>
     <div class="cart-header"><p class="lbl">Tonight's Dinner</p><p class="dish" id="cartTitle"></p></div>
-    <div class="savings-card">
-     <p class="savings-lbl">Estimated savings vs. DoorDash</p>
-     <p class="savings-amt grad-text" id="savingsAmt"></p>
-     <p class="savings-sub" id="savingsSub"></p>
-    </div>
     <p class="sec-title">Your Grocery List</p>
     <div class="cart-list" id="cartList"></div>
     <div class="bottom-cta">
@@ -425,7 +423,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
   <div class="cart-wrap" id="weekCartWrap" style="display:none;">
    <div>
     <div class="savings-card">
-     <p class="savings-lbl">Est. Savings vs. DoorDash for the Week</p>
+     <p class="savings-lbl">This Week's Plan</p>
      <p class="savings-amt grad-text" id="weekSavings"></p>
      <p class="savings-sub" id="weekSavingsSub"></p>
     </div>
@@ -436,7 +434,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
    <div>
     <div class="export-card">
      <h3><i data-lucide="shopping-cart"></i>Ship to Instacart</h3>
-     <p>One cart, all your dinners deduped and ready.</p>
+     <p>Your combined list, deduped and ready to shop.</p>
      <button class="instacart-btn" onclick="requirePro(sendWeekToInstacart)" style="margin-bottom:8px;"><i data-lucide="shopping-cart"></i>Send to Instacart</button>
      <button class="outline-btn" onclick="requirePro(sendWeekEmail)"><i data-lucide="mail"></i>Email Me the List</button>
     </div>
@@ -508,7 +506,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
     <div class="paywall-handle"></div>
     <div class="paywall-icon grad-bg"><i data-lucide="calendar-heart"></i></div>
     <h3>Unlock <em>Menu Select</em></h3>
-    <p class="pw-sub">Plan your week, build smart grocery lists, and stop ordering takeout — all for less than a cup of coffee a month.</p>
+    <p class="pw-sub">Plan your week, build smart grocery lists, and get dinner on the table — all for less than a cup of coffee a month.</p>
     <div class="paywall-price">
       <span class="amt">$1</span>
       <span class="per">/ month</span>
@@ -678,7 +676,7 @@ const RECIPES=[
 {id:86,title:"General Tso's Chicken",desc:"Crispy chicken tossed in a glossy sweet-spicy sauce.",time:"35 min",serves:"4",tags:["chinese","comfort"],url:"https://www.recipetineats.com/general-tsos-chicken/",img:"https://images.unsplash.com/photo-1623689046286-01d812cc8bad?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#2e0808,#501010)",ingredients:["chicken","cornstarch","soy sauce","hoisin sauce","sugar","vinegar","garlic","ginger","chili flakes","rice"]},
 {id:87,title:"Kung Pao Chicken",desc:"A bold stir-fry with peanuts and dried chilies.",time:"25 min",serves:"4",tags:["chinese","quick"],url:"https://www.recipetineats.com/kung-pao-chicken/",img:"https://images.unsplash.com/photo-1776729851079-686daa8ff9aa?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#3a1a08,#6b2e10)",ingredients:["chicken","peanuts","soy sauce","vinegar","sugar","garlic","ginger","dried chilies","rice"]},
 {id:88,title:"Lo Mein",desc:"One-pot noodles with vegetables in a savory sauce.",time:"20 min",serves:"4",tags:["chinese","quick","comfort"],url:"https://www.budgetbytes.com/lo-mein/",img:"https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#102818,#184a28)",ingredients:["lo mein noodles","cabbage","carrots","bell peppers","soy sauce","oyster sauce","garlic","sesame oil"]},
-{id:89,title:"Egg Roll in a Bowl",desc:"All the flavors of an egg roll in a healthy skillet.",time:"20 min",serves:"4",tags:["chinese","quick","healthy"],url:"https://www.budgetbytes.com/egg-roll-in-a-bowl/",img:"https://images.unsplash.com/photo-1634864572872-a01c21e388d4?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#2a2a10,#4a4a18)",ingredients:["ground pork","cabbage","carrots","garlic","ginger","soy sauce","sesame oil","green onions"]},
+{id:89,title:"Egg Roll in a Bowl",desc:"All the flavors of an egg roll, made in one skillet.",time:"20 min",serves:"4",tags:["chinese","quick","healthy"],url:"https://www.budgetbytes.com/egg-roll-in-a-bowl/",img:"https://images.unsplash.com/photo-1634864572872-a01c21e388d4?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#2a2a10,#4a4a18)",ingredients:["ground pork","cabbage","carrots","garlic","ginger","soy sauce","sesame oil","green onions"]},
 {id:90,title:"Oven-Baked Buffalo Wings",desc:"Crispy baked wings tossed in buffalo sauce.",time:"45 min",serves:"4",tags:["wings","comfort"],url:"https://www.budgetbytes.com/baked-buffalo-wings/",img:"https://images.unsplash.com/photo-1600555379765-f82335a7b1b0?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#3a0808,#582010)",ingredients:["chicken wings","butter","hot sauce","garlic powder","baking powder","celery","ranch dressing"]},
 {id:91,title:"Nashville Hot Chicken Sandwich",desc:"Extra-crispy fried chicken with a cayenne-spiced glaze.",time:"35 min",serves:"4",tags:["wings","chicken","comfort"],url:"https://www.budgetbytes.com/nashville-hot-chicken/",img:"https://images.unsplash.com/photo-1694718255848-02827741ba24?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#3a0808,#582010)",ingredients:["chicken breasts","flour","eggs","cayenne pepper","brown sugar","butter","pickles","buns","oil"]},
 {id:92,title:"Birria Tacos",desc:"Braised beef birria tacos dipped in rich, spiced consommé.",time:"2 hr",serves:"6",tags:["mexican","comfort"],url:"https://www.feastingathome.com/birria-tacos/",img:"https://images.unsplash.com/photo-1606350383072-4b031d6bd834?w=800&h=500&fit=crop&q=80",fb:"linear-gradient(135deg,#3a0808,#582010)",ingredients:["beef chuck","tortillas","dried chiles","onion","garlic","tomatoes","cumin","oregano","cheese","cilantro"]},
@@ -720,10 +718,16 @@ function startStripeCheckout(){
 }
 
 /* ─── Pro gate ─── */
+// AUTH_ENABLED=false: login and $1 subscription suppressed; everyone gets full access.
+// Set to true to bring sign-in and the paywall back.
+const AUTH_ENABLED=false;
+// WEEK_ENABLED=false: My Week, Pantry and Freezer hidden. Set to true to bring them back.
+const WEEK_ENABLED=true;
 // For now: any signed-in user gets full access.
 // Paywall only shows to guests (not logged in).
 function isPro(){return state.isPro||!!state.user||localStorage.getItem('ms_signedin')==='1';}
 function requirePro(action){
+  if(!AUTH_ENABLED){action();return;}
   // Check URL param for successful Stripe redirect
   if(new URLSearchParams(window.location.search).get('subscribed')==='true'){
     state.isPro=true;saveState();
@@ -840,6 +844,7 @@ function closeSigninModal(e){
 /* ─── User bar ─── */
 function renderUserBar(){
   const bar=document.getElementById('userBar');
+  if(!AUTH_ENABLED){bar.innerHTML=`<div class="user-bar-logo"><div class="dot grad-bg"></div>Menu Select</div><a class="privacy-link" href="/privacy.html">Privacy &amp; Terms</a>`;renderIcons();return;}
   const right=document.createElement('div');
   right.className='user-bar-right';
   if(state.user){
@@ -1117,29 +1122,20 @@ function closeModal(e){
 }
 
 /* ─── Cart ─── */
-function calcSavings(r){
-  const items=r.ingredients.filter(i=>!removed.has(i));
-  const premium=['beef tenderloin','salmon','shrimp','sirloin steak','heavy cream','parmesan','mozzarella','feta','sushi-grade tuna','pecorino romano','chuck roast','ricotta'];
-  let home=0;items.forEach(i=>{home+=premium.some(p=>i.toLowerCase().includes(p))?6:2.5;});
-  home=Math.round(home);
-  const dd=30+(parseInt(r.serves)||4)*3+6;
-  return{saved:Math.max(dd-home,12),dd,home};
-}
 function buildCart(){
   document.getElementById('cartTitle').textContent=sel.title;
   const items=sel.ingredients.filter(i=>!removed.has(i));
-  document.getElementById('cartList').innerHTML=items.map(ing=>`<div class="cart-item"><span class="cart-item-name">${ing}</span><div class="cart-dot grad-bg"></div></div>`).join('');
-  const s=calcSavings(sel);
-  document.getElementById('savingsAmt').textContent=`~$${s.saved}`;
-  document.getElementById('savingsSub').textContent=`Est. grocery cost: ~$${s.home} · DoorDash equivalent: ~$${s.dd}+`;
+  document.getElementById('cartList').innerHTML=items.map(ing=>`<div class="cart-item"><span class="cart-item-name">${ing}</span>${isAlcohol(ing)?OPT_TAG:''}<div class="cart-dot grad-bg"></div></div>`).join('');
 }
+const ALCOHOL_RX=/\b(wine|beer|vodka|brandy|bourbon|rum|whiskey|whisky|tequila|sherry|marsala|cognac|liqueur|vermouth)\b/i;
+function isAlcohol(n){return ALCOHOL_RX.test(n)&&!/vinegar/i.test(n);}
+const OPT_TAG='<span class="opt-tag">Optional · not sent to Instacart</span>';
 function sendToInstacart(){
-  const items=sel.ingredients.filter(i=>!removed.has(i));
+  const items=sel.ingredients.filter(i=>!removed.has(i)&&!isAlcohol(i));
   window.open(`https://www.instacart.com/store/s?k=${encodeURIComponent(items.slice(0,6).join(', '))}`,'_blank');
 }
 function sendEmail(){
   const items=sel.ingredients.filter(i=>!removed.has(i));
-  const s=calcSavings(sel);
   const byCat={produce:[],protein:[],dairy:[],pantry:[]};
   items.forEach(i=>{const c=categorize(i);byCat[c]=byCat[c]||[];byCat[c].push(i);});
   const sections=CAT_ORDER.filter(c=>byCat[c]&&byCat[c].length).map(c=>{
@@ -1147,7 +1143,7 @@ function sendEmail(){
     return `${h}\n${'-'.repeat(h.length)}\n${byCat[c].map(i=>`  ☐  ${i}`).join('\n')}`;
   }).join('\n\n');
   const subject=encodeURIComponent(`Menu Select: ${sel.title} — Grocery List`);
-  const body=encodeURIComponent([`MENU SELECT — DINNER PLAN`,``,`Dinner: ${sel.title}`,`Cook time: ${sel.time}  |  Serves: ${sel.serves}`,`Recipe: ${recipeSearchUrl(sel)}`,``,`SHOPPING LIST`,``,sections,``,`Est. savings vs. DoorDash: ~$${s.saved}`,`Powered by Menu Select · menu-selection.com`].join('\n'));
+  const body=encodeURIComponent([`MENU SELECT — DINNER PLAN`,``,`Dinner: ${sel.title}`,`Cook time: ${sel.time}  |  Serves: ${sel.serves}`,`Recipe: ${recipeSearchUrl(sel)}`,``,`SHOPPING LIST`,``,sections,``,`Powered by Menu Select · menu-selection.com`].join('\n'));
   window.location.href=`mailto:?subject=${subject}&body=${body}`;
 }
 
@@ -1186,11 +1182,10 @@ function renderWeek(){
   const items=aggregateWeekIngredients();
   const checkedSet=new Set(state.weekChecked||[]);
   const visible=items.filter(i=>!i.inStock||checkedSet.has(i.name.toLowerCase().trim()));
-  const totalSavings=recipes.reduce((s,r)=>s+calcSavings(r).saved,0);
   const checkedCount=visible.filter(i=>checkedSet.has(i.name.toLowerCase().trim())).length;
   const stockedCount=items.length-visible.length;
-  document.getElementById('weekSavings').textContent=`~$${totalSavings}`;
-  document.getElementById('weekSavingsSub').textContent=`${recipes.length} dinners · ${visible.length} to buy · ${stockedCount} already stocked`;
+  document.getElementById('weekSavings').textContent=`${recipes.length} dinner${recipes.length===1?'':'s'}`;
+  document.getElementById('weekSavingsSub').textContent=`${visible.length} to buy · ${stockedCount} already stocked`;
   document.getElementById('weekIngCount').innerHTML=`${visible.length} items<span class="shop-progress">${checkedCount}/${visible.length} in cart</span>`;
   const byCat={produce:[],protein:[],dairy:[],pantry:[]};
   visible.forEach(it=>{byCat[it.category]=byCat[it.category]||[];byCat[it.category].push(it);});
@@ -1200,7 +1195,7 @@ function renderWeek(){
     html+=`<div class="cat-section"><div class="cat-head"><div class="cat-dot" style="background:${CAT_DOTS[cat]}"></div><h4>${CAT_LABELS[cat]}</h4><span class="cat-count">${list.length} items</span></div>
     ${list.map(it=>{
       const key=it.name.toLowerCase().trim();const done=checkedSet.has(key);const safe=key.replace(/'/g,"\\'");
-      return`<div class="check-row ${done?'done':''}" onclick="toggleWeekItem('${safe}')"><div class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><span class="item-name">${it.name}</span>${it.sharedCount>1?`<span class="shared">×${it.sharedCount}</span>`:''}</div>`;
+      return`<div class="check-row ${done?'done':''}" onclick="toggleWeekItem('${safe}')"><div class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><span class="item-name">${it.name}</span>${isAlcohol(it.name)?OPT_TAG:''}${it.sharedCount>1?`<span class="shared">×${it.sharedCount}</span>`:''}</div>`;
     }).join('')}</div>`;
   });
   if(checkedCount>0)html+=`<button class="shop-reset" onclick="resetCheckedItems()"><i data-lucide="rotate-ccw"></i>Reset</button>`;
@@ -1221,7 +1216,7 @@ function toggleWeekItem(key){
 function resetCheckedItems(){state.weekChecked=[];saveState();renderWeek();toast('Checklist reset');}
 function removeFromWeek(dayKey){delete state.weekPlan[dayKey];pruneChecked();saveState();renderBadges();renderWeek();toast('Removed from week');}
 function sendWeekToInstacart(){
-  const items=aggregateWeekIngredients().filter(i=>!i.inStock).map(i=>i.name);
+  const items=aggregateWeekIngredients().filter(i=>!i.inStock&&!isAlcohol(i.name)).map(i=>i.name);
   if(!items.length)return toast('Nothing to shop yet');
   window.open(`https://www.instacart.com/store/s?k=${encodeURIComponent(items.slice(0,10).join(', '))}`,'_blank');
 }
@@ -1270,7 +1265,11 @@ function toast(msg){
 }
 
 /* ─── Init ─── */
-initSupabase();
+if(!WEEK_ENABLED){
+  document.querySelector('.week-strip').style.display='none';
+  document.getElementById('addToWeekBtn').style.display='none';
+}
+if(AUTH_ENABLED)initSupabase();
 setupFilters();
 filtered=RECIPES.filter(r=>!r.tags.includes('vegan'));
 renderBatch();
