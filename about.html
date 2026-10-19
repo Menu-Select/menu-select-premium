@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>About — Menu Select</title>
+<meta name="description" content="Menu Select helps individuals and busy families decide dinner fast: pick a dinner, send the groceries to Instacart, and cook tonight.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;900&family=DM+Serif+Display:ital@0;1&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0B0F;--cream:#F4E4C1;--dim:#8a8c9e;--border:rgba(255,255,255,.08);--fuchsia:#FF4D8D;--blue:#4C8DFF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:#e8e8ef;font-family:'Raleway',sans-serif;font-weight:300;line-height:1.7;}
+.wrap{max-width:720px;margin:0 auto;padding:48px 16px 80px;}
+.back{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--cream);text-decoration:none;}
+.logo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.75);margin:36px 0 10px;}
+h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(32px,7vw,52px);line-height:1.08;color:#fff;margin-bottom:14px;letter-spacing:-.01em;}
+h1 em{background:linear-gradient(90deg,var(--fuchsia),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.lede{font-family:'DM Serif Display',serif;font-style:italic;font-size:19px;color:#cfd0da;margin-bottom:8px;}
+h2{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--cream);margin:38px 0 12px;padding-top:26px;border-top:1px solid var(--border);}
+p{font-size:16px;margin-bottom:14px;}
+.steps{list-style:none;counter-reset:s;display:grid;gap:12px;margin:6px 0 14px;}
+.steps li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;background:rgba(244,228,193,.04);border:1px solid rgba(244,228,193,.12);border-radius:12px;padding:14px 16px;font-size:15px;}
+.steps li::before{content:counter(s);flex-shrink:0;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--fuchsia),var(--blue));color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.steps b{color:#fff;font-weight:600;}
+a{color:var(--cream);}
+.cta{display:inline-block;margin-top:8px;padding:14px 22px;border-radius:12px;background:linear-gradient(135deg,var(--fuchsia),var(--blue));color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;}
+.foot{margin-top:44px;padding-top:22px;border-top:1px solid var(--border);font-size:13px;color:var(--dim);}
+.foot a{color:var(--dim);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Back to Menu Select</a>
+  <p class="logo">Menu Select</p>
+  <h1>Pick at 3.<br><em>Cook tonight.</em></h1>
+  <p class="lede">Dinner ideas for individuals and busy families, with the groceries a few taps away.</p>
+
+  <h2>The problem</h2>
+  <p>It's 3pm. You're at work, the afternoon is full, and nobody has decided what's for dinner. By 5, the easy answer is takeout again, not because you don't want to cook, but because deciding is the hard part.</p>
+  <p>Menu Select takes the deciding off your plate.</p>
+
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><span><b>Pick a dinner.</b> Browse a curated set of weeknight dinners from your phone, whenever you have a minute.</span></li>
+    <li><span><b>Get the groceries.</b> Menu Select builds the shopping list. Remove what you already have, then send it to Instacart.</span></li>
+    <li><span><b>Choose your recipe.</b> Every dish links to recipes from cooks around the web, so you can pick the version that looks best to you.</span></li>
+    <li><span><b>Cook tonight.</b> Or plan the whole week at once and get one combined list for every dinner.</span></li>
+  </ol>
+
+  <h2>Who it's for</h2>
+  <p>Anyone who wants to cook at home more and decide less: individuals, couples and busy families, especially on weeknights when time and energy run short.</p>
+
+  <h2>Who's behind it</h2>
+  <p>I'm Steve, a parent and the founder of Menu Select. Running systems is my day job, and for years I've run our family dinners the same way: a planned rotation, a stocked pantry and a short weekly shop. Most of our dinners now come from Menu Select. I built it so other families could get dinner on the table without the daily scramble.</p>
+
+  <h2>Want the month planned for you?</h2>
+  <p>The Menu Select monthly plan on Substack lays out a full month of dinners with an organized shopping plan. Use this app alongside it to swap in your own picks and build each week's list.</p>
+  <a class="cta" href="https://menuselect.substack.com" target="_blank" rel="noopener">See the monthly plan</a>
+
+  <h2>Get in touch</h2>
+  <p>Questions, ideas or a dinner you'd like to see? Email me at <a href="mailto:steve@menu-selection.com">steve@menu-selection.com</a>.</p>
+
+  <p class="foot">Menu Select is independent and is not owned by or affiliated with Instacart. Recipe credit belongs to the cooks who created them. · <a href="/privacy.html">Privacy &amp; Terms</a></p>
+</div>
+</body>
+</html>
