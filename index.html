@@ -337,7 +337,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
   <div class="hdr">
     <div class="logo-row-c"><div class="logo-dot grad-bg"></div><span class="logo-text">Menu Select</span></div>
     <h1>What's for <em class="grad-text">dinner this week?</em></h1>
-    <p>Your companion to the Menu Select program and monthly plan. Pick your own dinners for the week, and we'll build the grocery list.</p>
+    <p>Pick tonight's dinner in a minute, send the groceries to Instacart, and cook tonight. Or plan your whole week.</p>
     <p style="margin-top:-14px;"><a href="https://menuselect.substack.com" target="_blank" rel="noopener" style="color:var(--cream);font-family:'Montserrat',sans-serif;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;">Get the monthly plan →</a></p>
   </div>
   <div class="week-strip">
@@ -368,7 +368,7 @@ body{background:#0A0B0F;color:#f0f0f6;font-family:'Raleway',sans-serif;font-weig
    <div class="s2-left"><div id="recipeHero" class="recipe-hero"></div></div>
    <div class="s2-right">
     <div class="ing-hdr"><h3>Ingredients</h3><span class="ing-count" id="ingCount"></span></div>
-    <p class="ing-hint">Tap anything you already have to remove it from your cart.</p>
+    <p class="ing-hint">A general shopping list for this dish. Every cook makes it a little differently, so pick a recipe you like with “Find a Recipe,” then tap anything you don’t need or already have to remove it.</p>
     <div class="ing-list" id="ingList"></div>
     <div class="bottom-cta">
      <div class="cta-stack">
@@ -844,7 +844,7 @@ function closeSigninModal(e){
 /* ─── User bar ─── */
 function renderUserBar(){
   const bar=document.getElementById('userBar');
-  if(!AUTH_ENABLED){bar.innerHTML=`<div class="user-bar-logo"><div class="dot grad-bg"></div>Menu Select</div><a class="privacy-link" href="/privacy.html">Privacy &amp; Terms</a>`;renderIcons();return;}
+  if(!AUTH_ENABLED){bar.innerHTML=`<div class="user-bar-logo"><div class="dot grad-bg"></div>Menu Select</div><span style="display:inline-flex;gap:16px;"><a class="privacy-link" href="/about.html">About</a><a class="privacy-link" href="/privacy.html">Privacy</a></span>`;renderIcons();return;}
   const right=document.createElement('div');
   right.className='user-bar-right';
   if(state.user){
@@ -1009,7 +1009,7 @@ function renderBatch(){
           <span class="meta-item"><i data-lucide="shopping-bag"></i>${r.ingredients.length} items</span>
         </div>
         <div class="card-cta">
-          <a class="recipe-link" href="${recipeSearchUrl(r)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Full Recipe<i data-lucide="arrow-up-right"></i></a>
+          <a class="recipe-link" href="${recipeSearchUrl(r)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Find Recipes<i data-lucide="arrow-up-right"></i></a>
           <button class="select-btn grad-bg" onclick="openRecipe(${r.id})">Select<i data-lucide="arrow-right"></i></button>
         </div>
       </div>`;
@@ -1050,7 +1050,7 @@ function openRecipe(id){
       <div class="hero-over"><span class="h-cat">${cat}</span><div class="h-name">${sel.title}</div></div>
     </div>
     <p class="hero-desc-text">${sel.desc||''}</p>
-    <a class="hero-link" href="${recipeSearchUrl(sel)}" target="_blank" rel="noopener">View Full Recipe <i data-lucide="arrow-up-right"></i></a>
+    <a class="hero-link" href="${recipeSearchUrl(sel)}" target="_blank" rel="noopener">Find a Recipe <i data-lucide="arrow-up-right"></i></a>
     <div class="hero-meta">
       <span class="meta-item"><i data-lucide="clock"></i>${sel.time}</span>
       <span class="meta-item"><i data-lucide="users"></i>Serves ${sel.serves}</span>
