@@ -82,6 +82,9 @@ h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(
 .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
 .chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--surface); color: var(--muted); }
 .chip.bank { background: var(--accent-soft); color: var(--accent-ink); }
+.recipe-link { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); text-decoration: none; }
+.recipe-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.option-why a { color: var(--accent-ink); font-weight: 700; }
 .swap-btn { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 14px; font-weight: 700; }
 .swap-btn[aria-expanded="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
 
@@ -321,6 +324,9 @@ CATALOG.forEach(([id, name, night, protein, bulk, fresh, pantry, fz, links]) => 
   DINNERS[id] = { id, name, night, protein, bulk, fresh, pantry, fz: !!fz, from: links ? links.from : undefined, only: links ? links.only : undefined };
 });
 const isFlex = dish => dish.protein === 'flex';
+// Same as the original app: a Google search for "<dinner> recipe"
+const recipeSearchUrl = name => 'https://www.google.com/search?q=' + encodeURIComponent(name + ' recipe');
+const ARROW_SVG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg>';
 
 // The November 2026 plan: six cook nights a week, Friday off
 const DEFAULT_MONTH = [
@@ -511,7 +517,7 @@ function renderPlan() {
     return `<li class="night">
       <div class="night-row">
         <div class="when"><span class="dow">${night.day}</span><span class="date">${dayDate(w, d)}</span></div>
-        <div class="what"><span class="theme">${night.name}</span><span class="dish${off ? ' off' : ''}">${esc(dishLabel(month, w, d))}</span><span class="meta">${badges.join('')}</span></div>
+        <div class="what"><span class="theme">${night.name}</span><span class="dish${off ? ' off' : ''}">${esc(dishLabel(month, w, d))}</span><span class="meta">${badges.join('')}${off ? '' : `<a class="recipe-link" href="${recipeSearchUrl(dish.name)}" target="_blank" rel="noopener">Find a recipe${ARROW_SVG}</a>`}</span></div>
         <button type="button" class="swap-btn" data-swap="${d}" aria-expanded="${isOpen}" aria-controls="panel-${d}">Swap</button>
       </div>
       ${isOpen ? renderPanel(w, d) : ''}
@@ -550,7 +556,7 @@ function renderPanel(w, d) {
       return `<div class="option${i === 0 && offset === 0 ? ' best' : ''}">
         <span class="option-name">${esc(flexOpt ? 'Night off' : o.c.name)}</span>
         <button type="button" class="use-btn" data-use="${o.c.id}">Swap in</button>
-        <span class="option-why">${meta}</span>
+        <span class="option-why">${meta}${flexOpt ? '' : ` · <a href="${recipeSearchUrl(o.c.name)}" target="_blank" rel="noopener">Find a recipe</a>`}</span>
         <span class="option-cost">${cost}</span>
       </div>`;
     }).join('')}</div>`;
