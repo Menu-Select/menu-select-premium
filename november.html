@@ -1,0 +1,766 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>November Dinners · Menu Select</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column — totals strip, plan/shopping tabs, week switcher, seven nights with swaps opening in place */
+:root {
+  --bg: #FFFFFF;
+  --surface: #F6F4F5;
+  --ink: #141214;
+  --muted: #5E585C;
+  --line: #E6E1E4;
+  --accent: #EC4899;
+  --accent-ink: #BE185D;
+  --accent-soft: #FDF2F8;
+  --good: #15803D;
+  --on-ink: #FFFFFF;
+  --display: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
+  --body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121012; --surface: #1D1A1C; --ink: #F3EFF1; --muted: #ABA3A8; --line: #332E31;
+    --accent: #F472B6; --accent-ink: #F9A8D4; --accent-soft: #3A1C2B; --good: #4ADE80; --on-ink: #121012;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121012; --surface: #1D1A1C; --ink: #F3EFF1; --muted: #ABA3A8; --line: #332E31;
+  --accent: #F472B6; --accent-ink: #F9A8D4; --accent-soft: #3A1C2B; --good: #4ADE80; --on-ink: #121012;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 640px; margin: 0 auto; padding-block: 20px 48px; display: flex; flex-direction: column; gap: 18px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand-name { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+.brand-name svg { flex: none; }
+.reset { background: none; border: none; color: var(--muted); font-size: 13px; font-weight: 600; padding: 8px 0; text-decoration: underline; text-underline-offset: 3px; }
+.title { display: flex; flex-direction: column; gap: 2px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ink); }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8vw, 40px); letter-spacing: -0.02em; line-height: 1.05; text-wrap: balance; }
+.lede { margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 52ch; }
+
+.totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.total { padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.total + .total { border-left: 1px solid var(--line); }
+.total-num { font-family: var(--display); font-weight: 800; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.total-label { font-size: 13px; color: var(--muted); }
+.delta { font-family: var(--body); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--surface); color: var(--muted); }
+.delta.down { color: var(--good); }
+.delta.up { color: var(--accent-ink); }
+
+.tabs, .weeks { display: grid; gap: 4px; background: var(--surface); padding: 4px; border-radius: 12px; }
+.tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.weeks { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.tabs button, .weeks button { border: none; background: transparent; border-radius: 9px; min-height: 40px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.tabs button[aria-selected="true"], .weeks button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); font-weight: 700; }
+
+.weekline { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: 13px; color: var(--muted); }
+.weekline strong { color: var(--ink); font-size: 15px; }
+
+.nights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.night { border-bottom: 1px solid var(--line); }
+.night:last-child { border-bottom: none; }
+.night-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 0; }
+.when { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.dow { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.date { font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.theme { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-ink); }
+.dish { font-size: 16px; font-weight: 700; }
+.dish.off { font-weight: 600; color: var(--muted); }
+.night.skipped .theme, .night.skipped .date { color: var(--muted); }
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--surface); color: var(--muted); }
+.chip.bank { background: var(--accent-soft); color: var(--accent-ink); }
+.swap-btn { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 14px; font-weight: 700; }
+.swap-btn[aria-expanded="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+
+.panel { margin: 0 0 16px; padding: 16px; border-radius: 16px; background: var(--surface); display: flex; flex-direction: column; gap: 12px; }
+.panel h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.panel .note { margin: 0; font-size: 13px; color: var(--muted); }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; }
+.option.best { border: 2px solid var(--accent); }
+.option-name { font-size: 15px; font-weight: 700; }
+.option-why { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.option-cost { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.cost { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); }
+.cost.zero { color: var(--good); }
+.use-btn { min-height: 40px; padding: 0 14px; border: none; border-radius: 10px; background: var(--ink); color: var(--on-ink); font-size: 14px; font-weight: 700; }
+.panel-foot { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.link-btn { background: none; border: none; padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--accent-ink); }
+.link-btn:disabled { color: var(--muted); cursor: default; }
+
+.list-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.list-head h2, .section h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.copy-btn { min-height: 40px; padding: 0 16px; border: none; border-radius: 10px; background: var(--ink); color: var(--on-ink); font-size: 14px; font-weight: 700; }
+.section { display: flex; flex-direction: column; gap: 4px; }
+.section .sub { font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+.group-label { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.item { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 44px; padding: 8px 0; border: none; border-bottom: 1px solid var(--line); background: none; text-align: left; font-size: 15px; }
+.item:last-child { border-bottom: none; }
+.tick { width: 20px; height: 20px; border-radius: 999px; border: 1.5px solid var(--muted); display: grid; place-items: center; color: var(--on-ink); }
+.tick svg { opacity: 0; }
+.item.have .tick { background: var(--good); border-color: var(--good); }
+.item.have .tick svg { opacity: 1; }
+.item-name { font-weight: 600; min-width: 0; }
+.item.have .item-name { text-decoration: line-through; text-decoration-thickness: 1.5px; color: var(--muted); font-weight: 500; }
+.item-use { font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.item-use .one { color: var(--accent-ink); font-weight: 700; }
+.item.have .item-use { opacity: 0.6; }
+.left-count { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+.pantry-box { background: var(--accent-soft); border-radius: 16px; padding: 14px 16px; }
+.pantry-box h2 { color: var(--accent-ink); }
+.copy-fallback { width: 100%; min-height: 160px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: 13px/1.5 ui-monospace, Menlo, monospace; padding: 10px; }
+
+.rules { margin: 0; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 32px); background: var(--ink); color: var(--on-ink); padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18); }
+@media (prefers-reduced-motion: no-preference) {
+  .panel { animation: open 160ms ease-out; }
+  @keyframes open { from { opacity: 0.4; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<div class="wrap">
+  <header class="brand">
+    <span class="brand-name">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17h10v3H7z"></path><path d="M7 17c-2.5-.5-4-2.5-4-4.5C3 10 5 8 7.5 8.3 8.3 6 10 5 12 5s3.7 1 4.5 3.3C19 8 21 10 21 12.5c0 2-1.5 4-4 4.5"></path></svg>
+      Menu Select
+    </span>
+    <button type="button" class="reset" id="reset">Reset to the starting month</button>
+  </header>
+
+  <div class="title">
+    <span class="eyebrow">Learn it · Month 1 of 3 · Example plan</span>
+    <h1>November dinners</h1>
+    <p class="lede">Thirty dinners from Nov 1 to Dec 5, with no seafood. Swap a dinner you don't love or skip a night, and the shopping list follows.</p>
+  </div>
+
+  <section class="totals" aria-label="Month totals">
+    <div class="total">
+      <span class="total-num"><span id="t-items">0</span><span class="delta" id="d-items" hidden></span></span>
+      <span class="total-label">Things to buy this month</span>
+    </div>
+    <div class="total">
+      <span class="total-num"><span id="t-single">0</span><span class="delta" id="d-single" hidden></span></span>
+      <span class="total-label">Fresh items bought for one dinner</span>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="tab-plan" aria-selected="true">Plan</button>
+    <button type="button" role="tab" id="tab-shop" aria-selected="false">Shopping</button>
+  </div>
+
+  <div class="weeks" role="group" aria-label="Week" id="weeks"></div>
+  <div class="weekline" id="weekline"></div>
+
+  <main id="view"></main>
+
+  <p class="rules">Swaps come from the same night first, ranked by how little they add to your shopping. When fewer than three fit, they borrow from other nights. Chicken and beef never land on back-to-back nights. Pork gets one night in weeks 1, 3 and 5, turkey one night in weeks 2 and 4, and nothing on the menu is seafood. Fridays stay a night off unless you swap in a dinner. A skipped night takes its groceries off the list and keeps its place, so you can bring it back. Dinners you swap out aren't suggested again.</p>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+const NIGHTS = [
+  { key: 'sun', day: 'Sun', name: 'Sunday Supper' },
+  { key: 'mon', day: 'Mon', name: 'Magic Meal Monday' },
+  { key: 'tue', day: 'Tue', name: 'Taco Tuesday' },
+  { key: 'wed', day: 'Wed', name: 'Pasta Wednesday' },
+  { key: 'thu', day: 'Thu', name: 'Table Thursday' },
+  { key: 'fri', day: 'Fri', name: 'Flex Friday' },
+  { key: 'sat', day: 'Sat', name: 'Date Night Dine In' }
+];
+const WEEK_TYPE = ['pork', 'turkey', 'pork', 'turkey', 'pork'];
+const WEEKS = WEEK_TYPE.length;
+const THANKSGIVING_WEEK = 3;
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// The month runs Sunday, Nov 1, 2026 through Saturday, Dec 5; week 5 crosses into December.
+function dateOf(w, d) {
+  const dt = new Date(2026, 10, 1 + w * 7 + d);
+  return { day: dt.getDate(), mon: MON[dt.getMonth()] };
+}
+function weekRange(w) {
+  const a = dateOf(w, 0), b = dateOf(w, 6);
+  return a.mon === b.mon ? `${a.mon} ${a.day}–${b.day}` : `${a.mon} ${a.day}–${b.mon} ${b.day}`;
+}
+
+const GROUP = {
+  produce: ['yellow onion','bell peppers','cilantro','carrots','potatoes','celery','lemons','limes','mushrooms','garlic','green beans','broccoli','green onions','cucumber','tomatoes','red onion','zucchini','apples','sweet potatoes','cabbage','oranges','lettuce','spinach','cherry tomatoes','parsley','asparagus','Brussels sprouts','butternut squash','coleslaw mix','jalapeño','fresh ginger','salad greens'],
+  meat: ['whole chickens','bone-in turkey breast'],
+  dairy: ['sour cream','provolone','Greek yogurt','cheddar','mozzarella','parmesan','heavy cream','butter','feta','ricotta','Monterey Jack','eggs','cream cheese','milk'],
+  bakery: ['burger buns','pita','hoagie rolls','pizza dough','flatbread','crusty bread','garlic bread','dinner rolls'],
+  frozen: ['frozen fries']
+};
+const GROUP_NAME = { produce: 'Produce', meat: 'Meat counter', dairy: 'Dairy and eggs', bakery: 'Bakery', frozen: 'Frozen' };
+const groupOf = item => Object.keys(GROUP).find(g => GROUP[g].includes(item)) || 'produce';
+
+// id, name, night, protein, bulk (freezer proteins), fresh (weekly), pantry (bought once), doubles for the freezer, links
+// links.from = the Sunday dinner whose leftovers make this one; links.only = the one [week, night] it belongs to.
+// No seafood anywhere in this month's catalog.
+const CATALOG = [
+  ['s1','Ropa vieja with rice and black beans','sun','beef',['chuck roast'],['bell peppers','yellow onion','cilantro'],['canned tomatoes','cumin','green olives','rice','black beans'],1],
+  ['s2','Pot roast with carrots and potatoes','sun','beef',['chuck roast'],['carrots','potatoes','yellow onion','garlic'],['beef broth','thyme'],0],
+  ['s3','Roast chicken with carrots, potatoes and onions','sun','chicken',[],['whole chickens','lemons','carrots','potatoes','yellow onion'],['thyme'],0],
+  ['s4','Beef bourguignon','sun','beef',['chuck roast'],['carrots','mushrooms','yellow onion'],['beef broth','tomato paste','thyme'],1],
+  ['s5','Pulled pork sandwiches with coleslaw','sun','pork',['pork shoulder'],['coleslaw mix','burger buns'],['BBQ sauce','mayonnaise'],1],
+  ['s6','Chicken cacciatore with crusty bread','sun','chicken',['chicken thighs'],['bell peppers','mushrooms','yellow onion','crusty bread'],['canned tomatoes','Italian seasoning'],1],
+  ['s7','Chicken paella','sun','chicken',['chicken thighs','frozen peas'],['bell peppers','yellow onion','lemons'],['rice','smoked paprika','chicken broth'],0],
+  ['s8','Herb-roasted pork loin','sun','pork',['pork loin'],['potatoes','green beans','garlic'],['Dijon mustard','thyme'],0],
+  ['s10','Braised chicken thighs with carrots','sun','chicken',['chicken thighs'],['carrots','yellow onion','lemons'],['chicken broth','thyme'],1],
+  ['s11','Smothered chicken and rice','sun','chicken',['chicken thighs'],['mushrooms','yellow onion'],['chicken broth','rice'],1],
+  ['s12','Oven-braised brisket','sun','beef',['brisket'],['yellow onion','carrots'],['ketchup','brown sugar','beef broth'],1],
+  ['s13',"Shepherd's pie",'sun','beef',['ground beef'],['potatoes','carrots','yellow onion','butter'],['beef broth','tomato paste'],1],
+  ['s14','Roast turkey breast with root vegetables','sun','turkey',[],['bone-in turkey breast','carrots','potatoes','yellow onion'],['thyme'],0],
+
+  ['m1','Sheet-pan lemon chicken','mon','chicken',['chicken thighs'],['lemons','potatoes','green beans'],['oregano'],0],
+  ['m2','Cheesesteak bowls','mon','beef',['shaved steak'],['bell peppers','yellow onion','provolone'],['rice'],0],
+  ['m3','Sheet-pan sausage and peppers','mon','pork',['Italian sausage'],['bell peppers','yellow onion','potatoes'],['oregano'],0],
+  ['m4','Teriyaki chicken bowls','mon','chicken',['chicken thighs'],['broccoli','green onions'],['soy sauce','honey','rice'],0],
+  ['m5','Korean-style beef bowls','mon','beef',['ground beef'],['green onions','cucumber','garlic','fresh ginger'],['soy sauce','brown sugar','rice'],0],
+  ['m7','Chicken shawarma bowls','mon','chicken',['chicken thighs'],['cucumber','tomatoes','red onion','Greek yogurt'],['cumin','rice'],0],
+  ['m8','Sheet-pan meatballs and zucchini','mon','beef',['ground beef'],['zucchini','parmesan'],['breadcrumbs','marinara'],1],
+  ['m9','Pork chops with apples and sweet potatoes','mon','pork',['pork chops'],['apples','sweet potatoes','green beans'],['thyme'],0],
+  ['m10','Sheet-pan chicken fajitas','mon','chicken',['chicken breasts'],['bell peppers','yellow onion','limes'],['taco seasoning','tortillas'],0],
+  ['m11','Honey-garlic chicken and broccoli','mon','chicken',['chicken thighs'],['broccoli','garlic'],['honey','soy sauce','rice'],0],
+  ['m12','Sheet-pan steak and potatoes','mon','beef',['sirloin steak'],['potatoes','broccoli','garlic'],[],0],
+  ['m13','Burger bowls','mon','beef',['ground beef'],['lettuce','tomatoes','cheddar','red onion'],['pickles'],0],
+  ['m14','Maple-Dijon chicken with sweet potatoes and Brussels sprouts','mon','chicken',['chicken thighs'],['sweet potatoes','Brussels sprouts'],['maple syrup','Dijon mustard'],0],
+  ['m15','Harvest chicken bowls with butternut squash','mon','chicken',['chicken thighs'],['butternut squash','spinach','feta'],['dried cranberries','balsamic vinegar','rice'],0],
+  ['m16','Turkey and sweet potato skillet','mon','turkey',['ground turkey'],['sweet potatoes','spinach','yellow onion'],['cumin','chili powder'],0],
+
+  ['t2','Chicken tinga tacos','tue','chicken',['chicken thighs'],['yellow onion','limes','cilantro'],['chipotle in adobo','canned tomatoes','tortillas'],1],
+  ['t3','Birria-style beef tacos','tue','beef',['chuck roast'],['yellow onion','cilantro','limes','Monterey Jack'],['chili powder','cumin','tortillas'],1],
+  ['t4','Pork carnitas tacos','tue','pork',['pork shoulder'],['oranges','limes','cilantro','yellow onion'],['cumin','tortillas'],1],
+  ['t5','Ground beef taco bar','tue','beef',['ground beef'],['lettuce','tomatoes','cheddar','sour cream'],['taco seasoning','tortillas'],0],
+  ['t6','Chicken burrito bowls','tue','chicken',['chicken thighs'],['limes','cilantro','tomatoes','cheddar'],['black beans','rice','cumin'],0],
+  ['t7','Coconut chicken curry with rice','tue','chicken',['chicken thighs','frozen peas'],['yellow onion','garlic'],['curry powder','coconut milk','tomato paste','rice'],1],
+  ['t9','Steak fajitas','tue','beef',['flank steak'],['bell peppers','yellow onion','limes','sour cream'],['tortillas'],0],
+  ['t10','Chicken enchiladas','tue','chicken',[],['whole chickens','Monterey Jack','sour cream','green onions'],['enchilada sauce','tortillas'],1,{ from: 's3' }],
+  ['t11','Chicken quesadillas','tue','chicken',['chicken breasts'],['bell peppers','Monterey Jack','sour cream'],['tortillas'],0],
+  ['t12','Beef enchiladas','tue','beef',['ground beef'],['cheddar','green onions','sour cream'],['enchilada sauce','tortillas','black beans'],1],
+  ['t13','Beef barbacoa bowls','tue','beef',['chuck roast'],['limes','cilantro','yellow onion'],['chipotle in adobo','cumin','rice'],1],
+  ['t15','Pork chile verde tacos','tue','pork',['pork shoulder'],['yellow onion','cilantro','limes'],['salsa verde','tortillas'],1],
+  ['t16','Shredded beef tacos','tue','beef',['chuck roast'],['lettuce','cilantro','limes','sour cream','cheddar'],['taco seasoning','tortillas'],0,{ from: 's2' }],
+  ['t17','Ropa vieja quesadillas with pico de gallo','tue','beef',['chuck roast'],['tomatoes','yellow onion','jalapeño','cilantro','limes','Monterey Jack','sour cream'],['tortillas'],0,{ from: 's1' }],
+  ['t18','Turkey taco bowls','tue','turkey',['ground turkey'],['lettuce','tomatoes','cheddar','limes'],['taco seasoning','black beans','rice'],0],
+
+  ['w1','Beef Bolognese','wed','beef',['ground beef'],['carrots','yellow onion','celery','parmesan'],['canned tomatoes','spaghetti'],1],
+  ['w2','Baked ziti with sausage','wed','pork',['Italian sausage'],['mozzarella','ricotta','parmesan'],['marinara','ziti'],1],
+  ['w3','Chicken alfredo with broccoli','wed','chicken',['chicken breasts'],['broccoli','parmesan','heavy cream'],['fettuccine'],0],
+  ['w4','Chicken lo mein','wed','chicken',['chicken breasts'],['coleslaw mix','carrots','green onions','garlic'],['soy sauce','ground ginger','spaghetti'],0],
+  ['w6','Beef and broccoli noodles','wed','beef',['flank steak'],['broccoli','green onions','garlic'],['soy sauce','brown sugar','spaghetti'],0],
+  ['w7','Chicken pesto pasta','wed','chicken',['chicken breasts'],['cherry tomatoes','parmesan'],['pesto','penne'],0],
+  ['w8','Sausage rigatoni with spinach','wed','pork',['Italian sausage'],['spinach','parmesan','garlic'],['marinara','rigatoni'],0],
+  ['w9','Spaghetti and meatballs','wed','beef',['ground beef'],['parmesan','parsley'],['marinara','breadcrumbs','spaghetti'],1],
+  ['w10','Chicken parmesan pasta bake','wed','chicken',['chicken breasts'],['mozzarella','parmesan'],['marinara','penne'],1],
+  ['w11','Beefy baked penne','wed','beef',['ground beef'],['mozzarella','yellow onion'],['marinara','penne'],1],
+  ['w12','Cajun chicken pasta','wed','chicken',['chicken breasts'],['bell peppers','heavy cream','parmesan'],['Cajun seasoning','penne'],0],
+  ['w14','Beef lasagna','wed','beef',['ground beef'],['ricotta','mozzarella','parmesan'],['marinara','lasagna noodles'],1],
+  ['w15','Spaghetti carbonara with bacon and peas','wed','pork',['bacon','frozen peas'],['eggs','parmesan'],['spaghetti','black peppercorns'],0],
+  ['w16','Turkey Bolognese','wed','turkey',['ground turkey'],['carrots','yellow onion','celery','parmesan'],['canned tomatoes','spaghetti'],1],
+
+  ['h1','Greek chicken bowls with tzatziki','thu','chicken',['chicken thighs'],['lemons','cucumber','tomatoes','feta','Greek yogurt','garlic'],['oregano','dried dill','rice'],0],
+  ['h2','Meatloaf with baked potatoes and glazed carrots','thu','beef',['ground beef'],['potatoes','carrots','yellow onion','eggs'],['breadcrumbs','ketchup','brown sugar'],1],
+  ['h3','Swedish meatballs','thu','beef',['ground beef'],['sour cream','parsley'],['beef broth','egg noodles','breadcrumbs'],1],
+  ['h4','Salisbury steak','thu','beef',['ground beef'],['mushrooms','yellow onion','potatoes'],['beef broth'],1],
+  ['h6','Chicken souvlaki with tzatziki','thu','chicken',['chicken breasts'],['cucumber','Greek yogurt','tomatoes','red onion','pita'],['oregano'],0],
+  ['h7','Pork chops with white beans and greens','thu','pork',['pork chops'],['lemons','spinach','garlic'],['white beans'],0],
+  ['h8','Beef kofta with pita, tzatziki and chopped salad','thu','beef',['ground beef'],['cucumber','Greek yogurt','parsley','pita','tomatoes','lettuce','lemons','yellow onion'],['cumin','paprika'],0],
+  ['h9','Greek lemon chicken and potatoes','thu','chicken',['chicken thighs'],['lemons','potatoes','garlic'],['oregano'],0],
+  ['h10','Country-fried steak','thu','beef',['cube steak'],['potatoes','green beans'],['breadcrumbs'],0],
+  ['h11','Lemon chicken with orzo','thu','chicken',['chicken thighs'],['lemons','spinach','feta'],['orzo'],0],
+  ['h12','Beef-stuffed peppers','thu','beef',['ground beef'],['bell peppers','yellow onion'],['rice','canned tomatoes'],1],
+  ['h13','Ranch chicken with potatoes and green beans','thu','chicken',['chicken breasts'],['potatoes','green beans'],['ranch seasoning'],0],
+  ['h15','Turkey-stuffed peppers with rice and cheese','thu','turkey',['ground turkey'],['bell peppers','yellow onion','cheddar'],['rice','canned tomatoes'],0],
+  ['h16','Thanksgiving turkey breast, stuffing and mashed potatoes','thu','turkey',[],['bone-in turkey breast','potatoes','green beans','dinner rolls','butter','milk'],['stuffing mix','cranberry sauce','chicken broth'],0,{ only: [3, 4] }],
+
+  ['x0','Freezer bank, leftovers or order out','fri','flex',[],[],[],0],
+  ['f1','Smash burgers','fri','beef',['ground beef'],['lettuce','tomatoes','cheddar','burger buns'],['pickles'],0],
+  ['f2','Crispy chicken sandwiches','fri','chicken',['chicken breasts'],['lettuce','burger buns'],['pickles','mayonnaise','breadcrumbs'],0],
+  ['f3','Sausage and pepper pizza','fri','pork',['Italian sausage'],['mozzarella','bell peppers','pizza dough'],['marinara'],0],
+  ['f4','Chicken fried rice','fri','chicken',['chicken thighs','frozen peas'],['green onions','eggs'],['soy sauce','rice'],0],
+  ['f5','Steak burrito bowls','fri','beef',['flank steak'],['limes','cilantro','cheddar','lettuce'],['black beans','rice'],0],
+  ['f6','Sloppy joes','fri','beef',['ground beef'],['yellow onion','bell peppers','burger buns'],['ketchup','brown sugar'],0],
+  ['f8','BBQ chicken flatbreads','fri','chicken',['chicken breasts'],['red onion','mozzarella','cilantro','flatbread'],['BBQ sauce'],0],
+  ['f9','Philly cheesesteaks','fri','beef',['shaved steak'],['bell peppers','yellow onion','provolone','hoagie rolls'],[],0],
+  ['f10','Buffalo chicken wraps','fri','chicken',['chicken breasts'],['lettuce','tomatoes'],['buffalo sauce','tortillas'],0],
+  ['f11','Loaded beef nachos','fri','beef',['ground beef'],['cheddar','tomatoes','sour cream','green onions'],['tortilla chips','black beans'],0],
+  ['f13','Beef teriyaki rice bowls','fri','beef',['flank steak'],['broccoli','green onions'],['soy sauce','honey','rice'],0],
+  ['f14','Turkey burgers','fri','turkey',['ground turkey'],['lettuce','tomatoes','cheddar','burger buns'],['pickles'],0],
+
+  ['d1','Chicken piccata','sat','chicken',['chicken breasts'],['lemons','parsley','butter'],['capers','chicken broth','spaghetti'],0],
+  ['d2','Garlic-butter strip steak with smashed potatoes','sat','beef',['strip steaks'],['green beans','potatoes','butter','garlic'],[],0],
+  ['d3','Chicken marsala','sat','chicken',['chicken breasts'],['mushrooms','heavy cream'],['marsala wine','chicken broth'],0],
+  ['d5','Pork tenderloin with mustard cream','sat','pork',['pork tenderloin'],['green beans','heavy cream'],['Dijon mustard'],0],
+  ['d7','Beef stroganoff','sat','beef',['sirloin steak'],['mushrooms','sour cream','yellow onion'],['egg noodles','beef broth'],0],
+  ['d8','Chicken parmesan with garlic bread','sat','chicken',['chicken breasts'],['mozzarella','parmesan','eggs','salad greens','garlic bread'],['marinara','breadcrumbs'],0],
+  ['d9','Tuscan chicken','sat','chicken',['chicken breasts'],['spinach','cherry tomatoes','heavy cream','parmesan'],[],0],
+  ['d10','Steak frites with peppercorn sauce','sat','beef',['strip steaks'],['frozen fries','heavy cream','butter'],['beef broth','black peppercorns'],0],
+  ['d11','Lemon garlic chicken with asparagus','sat','chicken',['chicken thighs'],['lemons','asparagus','garlic'],[],0],
+  ['d12','Flank steak with chimichurri','sat','beef',['flank steak'],['parsley','garlic','red onion'],['red wine vinegar'],0],
+  ['d13','Honey-Dijon chicken with green beans','sat','chicken',['chicken thighs'],['green beans','garlic'],['honey','Dijon mustard'],0],
+  ['d14','Lemon-butter chicken francese with broccoli','sat','chicken',['chicken breasts'],['lemons','eggs','parmesan','butter','broccoli','crusty bread'],['flour','chicken broth'],0],
+  ['d15','Spinach-and-cheese stuffed chicken with roasted potatoes','sat','chicken',['chicken breasts'],['spinach','cream cheese','mozzarella','potatoes','garlic'],[],0],
+  ['d16','Turkey meatballs with lemon orzo','sat','turkey',['ground turkey'],['spinach','parmesan','lemons'],['breadcrumbs','orzo','chicken broth'],1]
+];
+const DINNERS = {};
+CATALOG.forEach(([id, name, night, protein, bulk, fresh, pantry, fz, links]) => {
+  DINNERS[id] = { id, name, night, protein, bulk, fresh, pantry, fz: !!fz, from: links ? links.from : undefined, only: links ? links.only : undefined };
+});
+const isFlex = dish => dish.protein === 'flex';
+
+// The November 2026 plan: six cook nights a week, Friday off
+const DEFAULT_MONTH = [
+  ['s2', 'm14', 't16', 'w8', 'h1', 'x0', 'd2'],
+  ['s3', 'm2', 't10', 'w9', 'h15', 'x0', 'd14'],
+  ['s5', 'm15', 't5', 'w4', 'h2', 'x0', 'd8'],
+  ['s1', 'm11', 't17', 'w7', 'h16', 'x0', 'd10'],
+  ['s6', 'm5', 't7', 'w15', 'h8', 'x0', 'd15']
+];
+const STORE_KEY = 'menu-select-swaps-nov2026-v2';
+
+const clone = m => m.map(w => w.slice());
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function freshState() {
+  return { month: clone(DEFAULT_MONTH), fewer: [], passed: [], skipped: [], have: [] };
+}
+let state = freshState();
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+  if (saved && Array.isArray(saved.month) && saved.month.length === WEEKS && saved.month.every(w => Array.isArray(w) && w.length === 7 && w.every(id => DINNERS[id]))) {
+    state = { month: saved.month, fewer: saved.fewer || [], passed: saved.passed || [], skipped: saved.skipped || [], have: saved.have || [] };
+  }
+} catch (e) { /* storage unavailable: start from the default month */ }
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+}
+
+const ui = { tab: 'plan', week: 0, open: null, offset: 0, before: null, copyText: null };
+const slotKey = (w, d) => w + '-' + d;
+const isSkipped = (w, d) => state.skipped.includes(slotKey(w, d));
+const hasItem = key => state.have.includes(key);
+
+/* ---------- rules ---------- */
+function neighborSlots(w, d) {
+  const out = [];
+  if (d > 0) out.push([w, d - 1]); else if (w > 0) out.push([w - 1, 6]);
+  if (d < 6) out.push([w, d + 1]); else if (w < WEEKS - 1) out.push([w + 1, 0]);
+  return out;
+}
+function proteinFits(month, w, d, protein) {
+  if (protein === 'chicken' || protein === 'beef') {
+    return neighborSlots(w, d).every(([nw, nd]) => DINNERS[month[nw][nd]].protein !== protein);
+  }
+  if (WEEK_TYPE[w] !== protein) return false;
+  return month[w].every((id, i) => i === d || DINNERS[id].protein !== protein);
+}
+function fits(month, w, d, dish) {
+  if (dish.only && !(dish.only[0] === w && dish.only[1] === d)) return false;
+  if (isFlex(dish)) return d === 5;
+  return proteinFits(month, w, d, dish.protein);
+}
+
+/* ---------- shopping math ---------- */
+function weekFreshUse(month, w, skipDay) {
+  const use = new Map();
+  month[w].forEach((id, d) => {
+    if (d === skipDay || isSkipped(w, d)) return;
+    DINNERS[id].fresh.forEach(item => {
+      if (!use.has(item)) use.set(item, []);
+      use.get(item).push(d);
+    });
+  });
+  return use;
+}
+function monthSet(month, field, skipW, skipD) {
+  const set = new Set();
+  month.forEach((week, w) => week.forEach((id, d) => {
+    if ((w === skipW && d === skipD) || isSkipped(w, d)) return;
+    DINNERS[id][field].forEach(x => set.add(x));
+  }));
+  return set;
+}
+function totals(month) {
+  let items = 0, single = 0;
+  for (let w = 0; w < WEEKS; w++) {
+    const use = weekFreshUse(month, w, -1);
+    items += use.size;
+    use.forEach(days => { if (days.length === 1) single++; });
+  }
+  items += monthSet(month, 'bulk').size + monthSet(month, 'pantry').size;
+  return { items, single };
+}
+function freezerDoubles(month) {
+  const out = new Set();
+  for (let w = 0; w < WEEKS && out.size < 5; w++) {
+    for (let d = 0; d <= 4 && out.size < 5; d++) {
+      if (DINNERS[month[w][d]].fz && !isSkipped(w, d)) out.add(w + '-' + d);
+    }
+  }
+  return out;
+}
+function fedFromSunday(month, w, d) {
+  const dish = DINNERS[month[w][d]];
+  return d === 2 && !!dish.from && month[w][0] === dish.from && !isSkipped(w, 0) && !isSkipped(w, 2);
+}
+
+/* ---------- swap scoring ---------- */
+function rankSwaps(month, w, d) {
+  const current = DINNERS[month[w][d]];
+  const inMonth = new Set(month.flat());
+  const fresh = weekFreshUse(month, w, d);
+  const bulk = monthSet(month, 'bulk', w, d);
+  const pantry = monthSet(month, 'pantry', w, d);
+  const fewer = new Set(state.fewer);
+  const passed = new Set(state.passed);
+  return Object.values(DINNERS)
+    .filter(c => c.id !== current.id
+      && (isFlex(c) || c.only || (!inMonth.has(c.id) && !passed.has(c.id)))
+      && fits(month, w, d, c))
+    .map(c => {
+      const reused = c.fresh.filter(i => fresh.has(i));
+      const newFresh = c.fresh.filter(i => !fresh.has(i));
+      const newBulk = c.bulk.filter(i => !bulk.has(i));
+      const newPantry = c.pantry.filter(i => !pantry.has(i));
+      const otherNight = c.night !== current.night;
+      const score = 3 * reused.length - 3 * newFresh.length - 2 * newBulk.length - newPantry.length
+        - (fewer.has(c.protein) ? 6 : 0);
+      return { c, reused, adds: [...newFresh, ...newBulk, ...newPantry], score, otherNight };
+    })
+    // same-night dinners first, then other nights; within each, the one that adds the least shopping
+    .sort((a, b) => (a.otherNight - b.otherNight) || b.score - a.score || a.adds.length - b.adds.length || a.c.name.localeCompare(b.c.name));
+}
+function dropsOff(month, w, d) {
+  const current = DINNERS[month[w][d]];
+  const fresh = weekFreshUse(month, w, d);
+  return current.fresh.filter(i => !fresh.has(i));
+}
+
+/* ---------- rendering ---------- */
+const $ = id => document.getElementById(id);
+function dayDate(w, d) { return dateOf(w, d).day; }
+function dishLabel(month, w, d) {
+  const dish = DINNERS[month[w][d]];
+  if (isFlex(dish) && d === 5 && DINNERS[month[w][4]].only && !isSkipped(w, 4)) return 'Thanksgiving leftovers';
+  return dish.name;
+}
+
+function renderTotals() {
+  const t = totals(state.month);
+  $('t-items').textContent = t.items;
+  $('t-single').textContent = t.single;
+  [['d-items', 'items'], ['d-single', 'single']].forEach(([el, key]) => {
+    const node = $(el);
+    if (!ui.before || ui.before[key] === t[key]) { node.hidden = true; return; }
+    const diff = t[key] - ui.before[key];
+    node.hidden = false;
+    node.textContent = (diff > 0 ? '+' : '−') + Math.abs(diff);
+    node.className = 'delta ' + (diff < 0 ? 'down' : 'up');
+  });
+}
+
+function renderWeeks() {
+  $('weeks').innerHTML = Array.from({ length: WEEKS }, (_, w) =>
+    `<button type="button" data-week="${w}" aria-pressed="${w === ui.week}">Week ${w + 1}</button>`).join('');
+  const use = weekFreshUse(state.month, ui.week, -1);
+  let kind = cap(WEEK_TYPE[ui.week]) + ' week';
+  if (ui.week === THANKSGIVING_WEEK) kind += ' · Thanksgiving';
+  if (ui.week === WEEKS - 1) kind += ' · runs into December';
+  $('weekline').innerHTML = `<strong>${weekRange(ui.week)}</strong>
+    <span>${kind}</span><span>${plural([...use.keys()].filter(i => !hasItem('fresh:' + ui.week + ':' + i)).length, 'fresh item', 'fresh items')} to buy</span>`;
+}
+
+function renderPlan() {
+  const month = state.month, w = ui.week;
+  const doubles = freezerDoubles(month);
+  const rows = month[w].map((id, d) => {
+    const dish = DINNERS[id], night = NIGHTS[d];
+    if (isSkipped(w, d)) {
+      return `<li class="night skipped">
+      <div class="night-row">
+        <div class="when"><span class="dow">${night.day}</span><span class="date">${dayDate(w, d)}</span></div>
+        <div class="what"><span class="theme">${night.name}</span><span class="dish off">No dinner planned</span><span class="meta"><span class="chip">${esc(dish.name)} is hidden</span></span></div>
+        <button type="button" class="swap-btn" data-restore="${d}">Bring back</button>
+      </div>
+    </li>`;
+    }
+    const off = isFlex(dish);
+    const isOpen = ui.open && ui.open[0] === w && ui.open[1] === d;
+    const badges = [off ? '<span class="chip">No shopping</span>' : `<span class="chip">${cap(dish.protein)}</span>`];
+    if (dish.only) badges.push('<span class="chip bank">Thanksgiving</span>');
+    if (doubles.has(w + '-' + d)) badges.push('<span class="chip bank">Double it, bank one</span>');
+    if (d === 0 && DINNERS[month[w][2]].from === id && !isSkipped(w, 2)) badges.push('<span class="chip">Cook extra for Tuesday</span>');
+    if (fedFromSunday(month, w, d)) badges.push(`<span class="chip">Uses Sunday's leftovers</span>`);
+    if (d === 5 && !off) badges.push('<span class="chip">Or order out</span>');
+    return `<li class="night">
+      <div class="night-row">
+        <div class="when"><span class="dow">${night.day}</span><span class="date">${dayDate(w, d)}</span></div>
+        <div class="what"><span class="theme">${night.name}</span><span class="dish${off ? ' off' : ''}">${esc(dishLabel(month, w, d))}</span><span class="meta">${badges.join('')}</span></div>
+        <button type="button" class="swap-btn" data-swap="${d}" aria-expanded="${isOpen}" aria-controls="panel-${d}">Swap</button>
+      </div>
+      ${isOpen ? renderPanel(w, d) : ''}
+    </li>`;
+  }).join('');
+  return `<ol class="nights">${rows}</ol>`;
+}
+
+function renderPanel(w, d) {
+  const month = state.month;
+  const current = DINNERS[month[w][d]];
+  const off = isFlex(current);
+  const currentName = dishLabel(month, w, d);
+  const ranked = rankSwaps(month, w, d);
+  const offset = ranked.length > 3 ? ui.offset % ranked.length : 0;
+  const shown = ranked.length <= 3 ? ranked : [0, 1, 2].map(i => ranked[(offset + i) % ranked.length]).filter((x, i, a) => a.indexOf(x) === i);
+  const drops = dropsOff(month, w, d);
+  const fewerOn = state.fewer.includes(current.protein);
+  let body;
+  if (!shown.length) {
+    body = off
+      ? `<p class="note">Any dinner here would put chicken or beef on back-to-back nights. Swap Thursday or Saturday first to open this night up.</p>`
+      : `<p class="note">Nothing else fits this night right now. Swapping a neighboring night opens up more options.</p>`;
+  } else {
+    body = `<div class="options">${shown.map((o, i) => {
+      const flexOpt = isFlex(o.c);
+      const why = flexOpt
+        ? 'Freezer bank, leftovers or order out'
+        : (o.reused.length ? `Uses ${o.reused.join(', ')} already on this week's list` : 'Shares no fresh items with this week');
+      const meta = flexOpt
+        ? esc(why)
+        : `${cap(o.c.protein)}${o.otherNight ? ' · usually a ' + NIGHTS.find(n => n.key === o.c.night).name + ' dinner' : ''} · ${esc(why)}`;
+      const cost = o.adds.length
+        ? o.adds.map(a => `<span class="cost">+ ${esc(a)}</span>`).join('')
+        : '<span class="cost zero">No new items</span>';
+      return `<div class="option${i === 0 && offset === 0 ? ' best' : ''}">
+        <span class="option-name">${esc(flexOpt ? 'Night off' : o.c.name)}</span>
+        <button type="button" class="use-btn" data-use="${o.c.id}">Swap in</button>
+        <span class="option-why">${meta}</span>
+        <span class="option-cost">${cost}</span>
+      </div>`;
+    }).join('')}</div>`;
+  }
+  const heading = shown.length === 1 ? 'One that fits ' : shown.length === 2 ? 'Two that fit ' : shown.length ? 'Three that fit ' : 'Swap ';
+  const note = off
+    ? (shown.length ? 'Cooking this night too? These add the least to your list.' : 'This night is off in the plan.')
+    : (drops.length ? `Dropping ${esc(currentName)} takes ${esc(drops.join(', '))} off your list.` : `Everything in ${esc(currentName)} is used by another dinner this week.`);
+  return `<div class="panel" id="panel-${d}">
+    <div class="panel-head">
+      <h3>${heading}${NIGHTS[d].name}</h3>
+      ${off ? '' : '<button type="button" class="link-btn" data-skip>Skip this night</button>'}
+    </div>
+    <p class="note">${note}</p>
+    ${body}
+    <div class="panel-foot">
+      ${off ? '<span></span>' : `<label class="check"><input type="checkbox" id="fewer-${current.protein}" data-fewer="${current.protein}" ${fewerOn ? 'checked' : ''}> Show fewer ${current.protein} dinners</label>`}
+      <span>
+        <button type="button" class="link-btn" data-more ${ranked.length > 3 ? '' : 'disabled'}>Show three others</button>
+      </span>
+    </div>
+    <button type="button" class="link-btn" data-close style="align-self:flex-start">${off ? 'Keep the night off' : 'Keep ' + esc(currentName)}</button>
+  </div>`;
+}
+
+const CHECK_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>';
+function itemRow(key, name, use) {
+  const have = hasItem(key);
+  return `<button type="button" class="item${have ? ' have' : ''}" data-have="${esc(key)}" aria-pressed="${have}">
+    <span class="tick" aria-hidden="true">${CHECK_SVG}</span>
+    <span class="item-name">${esc(cap(name))}</span>
+    <span class="item-use">${use}</span>
+  </button>`;
+}
+
+function renderShopping() {
+  const month = state.month, w = ui.week;
+  const use = weekFreshUse(month, w, -1);
+  const freshKey = item => 'fresh:' + w + ':' + item;
+  const groups = Object.fromEntries(Object.keys(GROUP).map(g => [g, []]));
+  [...use.keys()].sort((a, b) => a.localeCompare(b)).forEach(item => groups[groupOf(item)].push(item));
+  const freshHtml = Object.keys(groups).filter(g => groups[g].length).map(g => `
+    <span class="group-label">${GROUP_NAME[g]}</span>
+    ${groups[g].map(item => {
+      const days = use.get(item);
+      const label = days.map(d => NIGHTS[d].day).join(', ') + (days.length === 1 ? ' · <span class="one">1 dinner</span>' : '');
+      return itemRow(freshKey(item), item, label);
+    }).join('')}`).join('');
+  const freshLeft = [...use.keys()].filter(item => !hasItem(freshKey(item))).length;
+
+  const earlier = new Set();
+  for (let pw = 0; pw < w; pw++) month[pw].forEach((id, d) => { if (!isSkipped(pw, d)) DINNERS[id].pantry.forEach(p => earlier.add(p)); });
+  const thisWeek = new Set();
+  month[w].forEach((id, d) => { if (!isSkipped(w, d)) DINNERS[id].pantry.forEach(p => { if (!earlier.has(p)) thisWeek.add(p); }); });
+  const pantryItems = [...thisWeek].sort((a, b) => a.localeCompare(b));
+
+  const bulkCount = new Map();
+  month.forEach((week, bw) => week.forEach((id, d) => {
+    if (isSkipped(bw, d)) return;
+    DINNERS[id].bulk.forEach(b => bulkCount.set(b, (bulkCount.get(b) || 0) + 1));
+  }));
+  const bulkItems = [...bulkCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+  const lines = [`Week ${w + 1} fresh list (${weekRange(w)})`];
+  Object.keys(groups).forEach(g => groups[g].forEach(item => { if (!hasItem(freshKey(item))) lines.push('- ' + cap(item)); }));
+  const pantryLeft = pantryItems.filter(p => !hasItem('pantry:' + p));
+  if (pantryLeft.length) { lines.push('', 'Pantry build'); pantryLeft.forEach(p => lines.push('- ' + cap(p))); }
+  if (lines.length === 1) lines.push('Nothing left to buy this week.');
+  ui.copyText = lines.join('\n');
+
+  const leftLine = freshLeft === use.size ? plural(use.size, 'item', 'items') + ' to buy' : `${freshLeft} of ${use.size} left to buy`;
+  return `<div style="display:flex;flex-direction:column;gap:18px">
+    <section class="section">
+      <div class="list-head"><h2>This week, fresh only</h2><button type="button" class="copy-btn" id="copy">Copy list</button></div>
+      <p class="sub">Days show which dinners use each item. Tap anything you already have to cross it off; the copied list leaves it out.</p>
+      <p class="left-count">${leftLine}</p>
+      <div id="copy-slot"></div>
+      ${freshHtml}
+    </section>
+    <section class="section pantry-box">
+      <h2>Pantry build · week ${w + 1} of ${WEEKS}</h2>
+      <p class="sub">${pantryItems.length ? 'Bought once, used all month. Cross off anything already in your cupboard.' : 'Nothing new this week. Your pantry already covers it.'}</p>
+      ${pantryItems.map(p => itemRow('pantry:' + p, p, '')).join('')}
+    </section>
+    <section class="section">
+      <h2>Bulk purchase · whole month</h2>
+      <p class="sub">Frozen proteins and vegetables, bought in two runs (Nov 1 and Nov 15) so the freezer never overflows. Cross off anything already in your freezer.</p>
+      ${bulkItems.map(([b, n]) => itemRow('bulk:' + b, b, plural(n, 'dinner', 'dinners'))).join('')}
+    </section>
+  </div>`;
+}
+
+function render() {
+  renderTotals();
+  renderWeeks();
+  $('tab-plan').setAttribute('aria-selected', ui.tab === 'plan');
+  $('tab-shop').setAttribute('aria-selected', ui.tab === 'shop');
+  $('view').innerHTML = ui.tab === 'plan' ? renderPlan() : renderShopping();
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+}
+
+/* ---------- events ---------- */
+$('weeks').addEventListener('click', e => {
+  const b = e.target.closest('[data-week]');
+  if (!b) return;
+  ui.week = +b.dataset.week; ui.open = null; ui.offset = 0;
+  render();
+});
+$('tab-plan').addEventListener('click', () => { ui.tab = 'plan'; render(); });
+$('tab-shop').addEventListener('click', () => { ui.tab = 'shop'; ui.open = null; render(); });
+$('reset').addEventListener('click', () => {
+  ui.before = totals(state.month);
+  const have = state.have;
+  state = freshState(); state.have = have; ui.open = null; ui.offset = 0;
+  save(); render();
+  toast('Back to the starting month.');
+});
+
+$('view').addEventListener('click', e => {
+  const haveBtn = e.target.closest('[data-have]');
+  if (haveBtn) {
+    const key = haveBtn.dataset.have;
+    state.have = hasItem(key) ? state.have.filter(k => k !== key) : [...state.have, key];
+    save(); render();
+    const again = [...document.querySelectorAll('[data-have]')].find(b => b.dataset.have === key);
+    if (again) again.focus();
+    return;
+  }
+  const skip = e.target.closest('[data-skip]');
+  if (skip && ui.open) {
+    const [w, d] = ui.open;
+    const weekBefore = weekFreshUse(state.month, w, -1).size;
+    ui.before = totals(state.month);
+    state.skipped = [...state.skipped, slotKey(w, d)];
+    save();
+    ui.open = null; ui.offset = 0;
+    render();
+    toast(`No dinner on ${NIGHTS[d].day}, ${dateOf(w, d).mon} ${dayDate(w, d)}. Week ${w + 1} fresh list: ${weekBefore} → ${weekFreshUse(state.month, w, -1).size} items.`);
+    return;
+  }
+  const restore = e.target.closest('[data-restore]');
+  if (restore) {
+    const w = ui.week, d = +restore.dataset.restore;
+    const weekBefore = weekFreshUse(state.month, w, -1).size;
+    ui.before = totals(state.month);
+    state.skipped = state.skipped.filter(k => k !== slotKey(w, d));
+    save();
+    render();
+    toast(`${DINNERS[state.month[w][d]].name} is back. Week ${w + 1} fresh list: ${weekBefore} → ${weekFreshUse(state.month, w, -1).size} items.`);
+    return;
+  }
+  const swap = e.target.closest('[data-swap]');
+  if (swap) {
+    const d = +swap.dataset.swap;
+    const same = ui.open && ui.open[0] === ui.week && ui.open[1] === d;
+    ui.open = same ? null : [ui.week, d];
+    ui.offset = 0;
+    render();
+    return;
+  }
+  const use = e.target.closest('[data-use]');
+  if (use && ui.open) {
+    const [w, d] = ui.open;
+    const oldId = state.month[w][d];
+    const old = DINNERS[oldId];
+    const weekBefore = weekFreshUse(state.month, w, -1).size;
+    ui.before = totals(state.month);
+    state.month[w][d] = use.dataset.use;
+    if (!isFlex(old) && !old.only && !state.passed.includes(oldId)) state.passed.push(oldId);
+    save();
+    const weekAfter = weekFreshUse(state.month, w, -1).size;
+    ui.open = null; ui.offset = 0;
+    render();
+    const added = DINNERS[use.dataset.use];
+    const listLine = `Week ${w + 1} fresh list: ${weekBefore} → ${weekAfter} items.`;
+    toast(isFlex(added) ? `${NIGHTS[d].name} is a night off again. ${listLine}` : `Swapped in ${added.name}. ${listLine}`);
+    return;
+  }
+  if (e.target.closest('[data-more]')) { ui.offset += 3; render(); return; }
+  if (e.target.closest('[data-close]')) { ui.open = null; render(); return; }
+  if (e.target.closest('#copy')) {
+    const text = ui.copyText || '';
+    const fallback = () => {
+      $('copy-slot').innerHTML = '<label class="sub" for="copy-text">Select the list and copy it:</label><textarea class="copy-fallback" id="copy-text" readonly></textarea>';
+      const ta = $('copy-text'); ta.value = text; ta.focus(); ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => toast('List copied.'), fallback);
+    } catch (err) { fallback(); }
+  }
+});
+$('view').addEventListener('change', e => {
+  const box = e.target.closest('[data-fewer]');
+  if (!box) return;
+  const p = box.dataset.fewer;
+  state.fewer = box.checked ? [...new Set([...state.fewer, p])] : state.fewer.filter(x => x !== p);
+  save(); ui.offset = 0; render();
+  const again = document.querySelector('[data-fewer="' + p + '"]');
+  if (again) again.focus();
+});
+
+render();
+</script>
+
+</body></html>
